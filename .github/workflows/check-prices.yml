@@ -24,19 +24,21 @@ jobs:
       - name: Install dependencies
         run: |
           npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
 
       - name: Check prices
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: npm run check
+        run: |
+          npm run check || echo "Price check returned a non-zero status. Continuing so latest data/status can still be committed."
 
       - name: Check Luk Fook formula
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: node scripts/formula-check.js
+        run: |
+          node scripts/formula-check.js || echo "Formula check returned a non-zero status. Continuing."
 
       - name: Commit updated data
         run: |
