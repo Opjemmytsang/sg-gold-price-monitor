@@ -1,0 +1,12 @@
+{
+  "name": "sg-gold-price-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check-prices.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
