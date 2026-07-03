@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-03T10:50:08.930Z",
+  "updatedAt": "2026-07-03T15:11:54.890Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -10,7 +10,7 @@
       "status": "error",
       "error": "Cannot find Poh Heng pattern: 24K / 999 at $xxx.xx per gram",
       "previousPrice": null,
-      "checkedAt": "2026-07-03T10:50:08.930Z"
+      "checkedAt": "2026-07-03T15:11:54.890Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -22,7 +22,7 @@
       "currency": "SGD",
       "unit": "gram",
       "rawText": "999.9 G",
-      "checkedAt": "2026-07-03T10:50:08.930Z"
+      "checkedAt": "2026-07-03T15:11:54.890Z"
     }
   ]
 }
