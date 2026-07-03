@@ -32,6 +32,12 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: npm run check
 
+      - name: Check Luk Fook formula
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node scripts/formula-check.js
+
       - name: Commit updated data
         run: |
           if [[ -n $(git status --porcelain data/latest.json data/history.json) ]]; then
