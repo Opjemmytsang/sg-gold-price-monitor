@@ -6,6 +6,9 @@
   "scripts": {
     "check": "node scripts/check-prices.js"
   },
+  "dependencies": {
+    "playwright": "^1.49.1"
+  },
   "engines": {
     "node": ">=20"
   }
