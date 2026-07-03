@@ -23,8 +23,7 @@ jobs:
 
       - name: Check prices
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WECOM_WEBHOOK: ${{ secrets.WECOM_WEBHOOK }}
         run: npm run check
 
       - name: Commit updated data
