@@ -85,16 +85,40 @@ async function writeJson(path, data) {
   await fs.writeFile(path, JSON.stringify(data, null, 2) + "\n", "utf8");
 }
 
-async function sendTelegram(message) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!token || !chatId) return;
-  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+async function sendWeCom(message) {
+  const webhook = process.env.WECOM_WEBHOOK;
+  if (!webhook) {
+    console.log("WECOM_WEBHOOK is not set. Skipping WeCom notification.");
+    return;
+  }
+
+  const response = await fetch(webhook, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, text: message, disable_web_page_preview: true })
+    body: JSON.stringify({
+      msgtype: "text",
+      text: { content: message }
+    })
   });
-  if (!response.ok) console.log("Telegram failed:", response.status, await response.text());
+
+  const resultText = await response.text();
+  if (!response.ok) {
+    console.log("WeCom notification failed:", response.status, resultText);
+    return;
+  }
+
+  try {
+    const result = JSON.parse(resultText);
+    if (result.errcode !== 0) console.log("WeCom returned error:", resultText);
+  } catch {
+    console.log("WeCom response:", resultText);
+  }
+}
+
+function formatChangeLine(previous, current) {
+  const direction = current.change > 0 ? "↑" : "↓";
+  const sign = current.change > 0 ? "+" : "";
+  return `${current.brand}\nSGD ${Number(previous.price).toFixed(2)} → SGD ${Number(current.price).toFixed(2)} / gram\n${direction} ${sign}${current.change.toFixed(2)}`;
 }
 
 async function main() {
@@ -152,13 +176,15 @@ async function main() {
 
   if (changes.length) {
     const message = [
-      "Singapore 24K / 999 金價有變動",
+      "🔔 新加坡 24K / 999 金價有變動",
       "",
-      ...changes.map(({ previous, current }) => `${current.brand}: SGD ${Number(previous.price).toFixed(2)} → SGD ${Number(current.price).toFixed(2)} / gram (${current.change > 0 ? "+" : ""}${current.change.toFixed(2)})`),
+      ...changes.map(({ previous, current }) => formatChangeLine(previous, current)),
       "",
-      `Checked at: ${checkedAt}`
+      `更新時間：${checkedAt}`
     ].join("\n");
-    await sendTelegram(message);
+    await sendWeCom(message);
+  } else {
+    console.log("No price changes detected. WeCom notification not sent.");
   }
 }
 
