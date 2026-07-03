@@ -3,7 +3,8 @@ name: Check Singapore 24K Gold Prices
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 * * * *"
+    # Run once every hour.
+    - cron: "0 * * * *"
 
 permissions:
   contents: write
