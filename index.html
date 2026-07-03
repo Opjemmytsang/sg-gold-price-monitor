@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Singapore 24K / 999 Gold Price</title>
+  <title>Singapore Gold Price Monitor</title>
   <style>
     body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif; background:#f7f3ed; color:#1f1f1f; }
     main { max-width:980px; margin:auto; padding:28px 18px 48px; }
@@ -14,8 +14,7 @@
     .brand { display:flex; justify-content:space-between; gap:12px; color:#6f6a63; margin-bottom:12px; }
     .badge { border:1px solid #ecd7b3; background:#f5ead8; color:#6e4d1d; border-radius:999px; padding:5px 9px; font-size:12px; }
     .price { font-size:clamp(40px,7vw,64px); font-weight:760; letter-spacing:-.05em; line-height:1; color:#b88a44; margin:8px 0 10px; }
-    .unit,.raw,.meta { color:#6f6a63; font-size:14px; line-height:1.6; }
-    .raw { margin-top:14px; padding-top:14px; border-top:1px solid #eadfce; word-break:break-word; }
+    .unit,.meta { color:#6f6a63; font-size:14px; line-height:1.6; }
     .error .price { color:#b3261e; font-size:28px; letter-spacing:0; }
     .meta { margin-top:22px; }
     table { width:100%; border-collapse:collapse; margin-top:22px; background:white; border-radius:16px; overflow:hidden; }
@@ -27,31 +26,33 @@
 </head>
 <body>
   <main>
-    <h1>Singapore 24K / 999 Gold Price</h1>
-    <div class="sub">只抽取 24K / 999 每克金價；Poh Heng 鎖定「24K / 999 at $xxx.xx per gram」。</div>
+    <h1>Singapore Gold Price Monitor</h1>
+    <div class="sub">新加坡 24K / 999 每克金價監察。</div>
     <button onclick="location.reload()">重新整理</button>
     <section id="cards" class="grid"></section>
     <div id="meta" class="meta"></div>
     <table>
-      <thead><tr><th>品牌</th><th>項目</th><th>金價</th><th>狀態</th><th>原文 / 錯誤</th><th>來源</th></tr></thead>
+      <thead><tr><th>品牌</th><th>項目</th><th>金價</th><th>狀態</th><th>來源</th></tr></thead>
       <tbody id="rows"></tbody>
     </table>
   </main>
   <script>
     const money = new Intl.NumberFormat('en-SG', { style:'currency', currency:'SGD', minimumFractionDigits:2 });
-    function price(item){ return item.status === 'ok' ? `${money.format(item.price)} / ${item.unit}` : '讀取失敗'; }
-    function status(item){ return item.status === 'ok' ? '正常' : (item.error || '讀取失敗'); }
-    function card(item){ return `<article class="card ${item.status === 'ok' ? '' : 'error'}"><div class="brand"><strong>${item.brand}</strong><span class="badge">${item.label}</span></div><div class="price">${item.status === 'ok' ? money.format(item.price) : 'Error'}</div><div class="unit">${item.status === 'ok' ? 'per ' + item.unit : status(item)}</div><div class="raw">${item.rawText || item.error || ''}</div></article>`; }
-    function row(item){ return `<tr><td>${item.brand}</td><td>${item.label}</td><td>${price(item)}</td><td>${status(item)}</td><td>${item.rawText || item.error || ''}</td><td><a href="${item.url}" target="_blank" rel="noopener">開啟網站</a></td></tr>`; }
+    function price(item){ return item.status === 'ok' ? `${money.format(item.price)} / ${item.unit}` : '暫未能讀取'; }
+    function status(item){ return item.status === 'ok' ? '正常' : '暫未能讀取'; }
+    function publicLabel(item){ return item.id === 'lukfook-sg-formula-24k-999' ? '24K / 999' : item.label; }
+    function publicUrl(item){ return item.url && item.url !== '#' ? item.url : ''; }
+    function card(item){ return `<article class="card ${item.status === 'ok' ? '' : 'error'}"><div class="brand"><strong>${item.brand}</strong><span class="badge">${publicLabel(item)}</span></div><div class="price">${item.status === 'ok' ? money.format(item.price) : '—'}</div><div class="unit">${item.status === 'ok' ? 'per ' + item.unit : '暫未能讀取'}</div></article>`; }
+    function row(item){ const url = publicUrl(item); return `<tr><td>${item.brand}</td><td>${publicLabel(item)}</td><td>${price(item)}</td><td>${status(item)}</td><td>${url ? `<a href="${url}" target="_blank" rel="noopener">開啟網站</a>` : '—'}</td></tr>`; }
     async function load(){
       const res = await fetch(`data/latest.json?ts=${Date.now()}`);
       const data = await res.json();
       const items = data.items || [];
-      document.getElementById('cards').innerHTML = items.length ? items.map(card).join('') : '<div class="card">暫時未有資料，請先到 Actions 手動 Run workflow。</div>';
+      document.getElementById('cards').innerHTML = items.length ? items.map(card).join('') : '<div class="card">暫時未有資料。</div>';
       document.getElementById('rows').innerHTML = items.map(row).join('');
       document.getElementById('meta').innerHTML = `最後更新：${data.updatedAt || '未更新'}<br>時區：${data.timezone || 'Asia/Singapore'}`;
     }
-    load().catch(e => { document.getElementById('cards').innerHTML = `<div class="card error"><div class="price">Error</div><div class="raw">${e.message}</div></div>`; });
+    load().catch(() => { document.getElementById('cards').innerHTML = `<div class="card error"><div class="price">—</div><div class="unit">暫未能讀取資料</div></div>`; });
   </script>
 </body>
 </html>
