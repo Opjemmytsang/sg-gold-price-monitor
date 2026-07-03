@@ -85,40 +85,43 @@ async function writeJson(path, data) {
   await fs.writeFile(path, JSON.stringify(data, null, 2) + "\n", "utf8");
 }
 
-async function sendWeCom(message) {
-  const webhook = process.env.WECOM_WEBHOOK;
-  if (!webhook) {
-    console.log("WECOM_WEBHOOK is not set. Skipping WeCom notification.");
+async function sendTelegram(message) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+
+  if (!token || !chatId) {
+    console.log("Telegram secrets are not set. Skipping Telegram notification.");
     return;
   }
 
-  const response = await fetch(webhook, {
+  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
-      msgtype: "text",
-      text: { content: message }
+      chat_id: chatId,
+      text: message,
+      disable_web_page_preview: true
     })
   });
 
   const resultText = await response.text();
   if (!response.ok) {
-    console.log("WeCom notification failed:", response.status, resultText);
+    console.log("Telegram notification failed:", response.status, resultText);
     return;
   }
 
   try {
     const result = JSON.parse(resultText);
-    if (result.errcode !== 0) console.log("WeCom returned error:", resultText);
+    if (!result.ok) console.log("Telegram returned error:", resultText);
   } catch {
-    console.log("WeCom response:", resultText);
+    console.log("Telegram response:", resultText);
   }
 }
 
 function formatChangeLine(previous, current) {
-  const direction = current.change > 0 ? "↑" : "↓";
+  const direction = current.change > 0 ? "📈" : "📉";
   const sign = current.change > 0 ? "+" : "";
-  return `${current.brand}\nSGD ${Number(previous.price).toFixed(2)} → SGD ${Number(current.price).toFixed(2)} / gram\n${direction} ${sign}${current.change.toFixed(2)}`;
+  return `${direction} ${current.brand}\nSGD ${Number(previous.price).toFixed(2)} → SGD ${Number(current.price).toFixed(2)} / gram\n${sign}${current.change.toFixed(2)} SGD/g`;
 }
 
 async function main() {
@@ -182,9 +185,9 @@ async function main() {
       "",
       `更新時間：${checkedAt}`
     ].join("\n");
-    await sendWeCom(message);
+    await sendTelegram(message);
   } else {
-    console.log("No price changes detected. WeCom notification not sent.");
+    console.log("No price changes detected. Telegram notification not sent.");
   }
 }
 
