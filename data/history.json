@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "updatedAt": "2026-07-03T10:50:08.930Z",
+    "timezone": "Asia/Singapore",
+    "items": [
+      {
+        "id": "poh-heng-24k-999",
+        "brand": "Poh Heng",
+        "label": "24K / 999",
+        "url": "https://pohheng.com.sg/",
+        "status": "error",
+        "error": "Cannot find Poh Heng pattern: 24K / 999 at $xxx.xx per gram",
+        "previousPrice": null,
+        "checkedAt": "2026-07-03T10:50:08.930Z"
+      },
+      {
+        "id": "chow-tai-fook-sg-24k-999",
+        "brand": "Chow Tai Fook SG",
+        "label": "24K / 999",
+        "url": "https://www.chowtaifook.com/sg",
+        "status": "ok",
+        "price": 9,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "999.9 G",
+        "checkedAt": "2026-07-03T10:50:08.930Z"
+      }
+    ]
+  }
+]
