@@ -133,5 +133,52 @@
         "checkedAt": "2026-07-03T17:16:30.640Z"
       }
     ]
+  },
+  {
+    "updatedAt": "2026-07-03T17:20:46.301Z",
+    "timezone": "Asia/Singapore",
+    "items": [
+      {
+        "id": "poh-heng-24k-999",
+        "brand": "Poh Heng",
+        "label": "24K / 999",
+        "url": "https://pohheng.com.sg/",
+        "status": "ok",
+        "price": 252,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "24K / 999 at $252.00 / g",
+        "checkedAt": "2026-07-03T17:20:46.301Z"
+      },
+      {
+        "id": "chow-tai-fook-sg-24k-999",
+        "brand": "Chow Tai Fook SG",
+        "label": "24K / 999",
+        "url": "https://www.chowtaifook.com/sg",
+        "status": "ok",
+        "price": 257,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "999.9 Gold Selling Price SGD 257.00 /g",
+        "checkedAt": "2026-07-03T17:20:46.301Z"
+      },
+      {
+        "id": "lukfook-sg-formula-24k-999",
+        "brand": "Luk Fook Jewellery SG",
+        "label": "24K / 999 Suggested",
+        "url": "#",
+        "status": "ok",
+        "price": 254,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "Poh Heng + 2 = SGD 254.00; Chow Tai Fook - 3 = SGD 254.00; matched.",
+        "formula": {
+          "pohHengPlus2": 254,
+          "chowTaiFookMinus3": 254,
+          "difference": 0
+        },
+        "checkedAt": "2026-07-03T17:20:46.301Z"
+      }
+    ]
   }
 ]
