@@ -9,12 +9,18 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: gold-price-monitor
+  cancel-in-progress: false
+
 jobs:
   check-prices:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -47,6 +53,7 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add data/latest.json data/history.json
             git commit -m "Update Singapore 24K gold price data"
+            git pull --rebase origin main
             git push
           else
             echo "No data changes to commit."
