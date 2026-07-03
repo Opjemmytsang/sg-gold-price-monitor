@@ -1,4 +1,8 @@
 import fs from "node:fs/promises";
+import { chromium } from "playwright";
+
+const MIN_VALID_PRICE = 150;
+const MAX_VALID_PRICE = 400;
 
 const SOURCES = [
   {
@@ -17,59 +21,115 @@ const SOURCES = [
   }
 ];
 
-const HEADERS = {
-  "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36",
-  "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+const BROWSER_HEADERS = {
   "accept-language": "en-SG,en;q=0.9,zh-HK;q=0.8,zh;q=0.7"
 };
 
-function normalizeText(html) {
-  return html
+function decodeEntities(text) {
+  return text
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&#36;/g, "$")
+    .replace(/&dollar;/g, "$")
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'");
+}
+
+function normalizeText(input) {
+  return decodeEntities(String(input || ""))
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-function parsePohHeng24K999(html) {
-  const text = normalizeText(html);
-  const match = text.match(/24K\s*\/\s*999\s+at\s+\$?\s*([0-9]+(?:\.[0-9]{1,2})?)\s*per\s*gram/i);
-  if (!match) throw new Error("Cannot find Poh Heng pattern: 24K / 999 at $xxx.xx per gram");
+function isValidGoldPrice(value) {
+  return Number.isFinite(value) && value >= MIN_VALID_PRICE && value <= MAX_VALID_PRICE;
+}
+
+function buildResult(matchText, price) {
+  const value = Number(price);
+  if (!isValidGoldPrice(value)) {
+    throw new Error(`Rejected invalid gold price candidate: ${price}`);
+  }
   return {
-    price: Number(match[1]),
+    price: value,
     currency: "SGD",
     unit: "gram",
-    rawText: match[0]
+    rawText: normalizeText(matchText).slice(0, 220)
   };
 }
 
-function parseChowTaiFook24K999(html) {
-  const text = normalizeText(html);
-  const patterns = [
-    /(?:24K|999)[\s\S]{0,100}?\$?\s*([0-9]+(?:\.[0-9]{1,2})?)\s*(?:\/|per)?\s*(?:g|gram)/i,
-    /\$?\s*([0-9]+(?:\.[0-9]{1,2})?)\s*(?:\/|per)?\s*(?:g|gram)[\s\S]{0,100}?(?:24K|999)/i
-  ];
+function extractCandidates(text, patterns) {
+  const candidates = [];
   for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (match) {
-      return {
-        price: Number(match[1]),
-        currency: "SGD",
-        unit: "gram",
-        rawText: match[0]
-      };
+    pattern.lastIndex = 0;
+    let match;
+    while ((match = pattern.exec(text)) !== null) {
+      const raw = match[0];
+      const priceText = match.groups?.price || match[1] || match[2];
+      const price = Number(priceText);
+      if (isValidGoldPrice(price)) {
+        candidates.push({ price, raw });
+      }
+      if (match.index === pattern.lastIndex) pattern.lastIndex += 1;
     }
   }
-  throw new Error("Cannot find Chow Tai Fook SG 24K / 999 price pattern. Site may be blocked or dynamically rendered.");
+  return candidates;
 }
 
-async function fetchHtml(url) {
-  const response = await fetch(url, { headers: HEADERS, redirect: "follow" });
-  if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
-  return await response.text();
+function parsePohHeng24K999(content) {
+  const text = normalizeText(content);
+  const patterns = [
+    /24\s*K\s*\/\s*999(?:\.\d+)?\s*(?:at|:|-)?\s*(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*(?:per\s*gram|\/\s*g|\/\s*gram)?/gi,
+    /24\s*K\s*\/\s*999(?:\.\d+)?[\s\S]{0,120}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,80}?(?:per\s*gram|\/\s*g|\/\s*gram)/gi,
+    /(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,80}?(?:per\s*gram|\/\s*g|\/\s*gram)[\s\S]{0,120}?24\s*K\s*\/\s*999(?:\.\d+)?/gi
+  ];
+
+  const candidates = extractCandidates(text, patterns);
+  if (!candidates.length) {
+    throw new Error("Cannot find Poh Heng 24K / 999 SGD per gram price. No valid SGD 150-400 candidate found.");
+  }
+  return buildResult(candidates[0].raw, candidates[0].price);
+}
+
+function parseChowTaiFook24K999(content) {
+  const text = normalizeText(content);
+  const patterns = [
+    /(?:24\s*K|999(?:\.9)?|足金|999\.9\s*Gold|Gold\s*Price)[\s\S]{0,180}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*(?:\/\s*g|\/\s*gram|per\s*gram)?/gi,
+    /(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*(?:\/\s*g|\/\s*gram|per\s*gram)?[\s\S]{0,180}?(?:24\s*K|999(?:\.9)?|足金|Gold\s*Price)/gi,
+    /(?:999(?:\.9)?|24\s*K)[\s\S]{0,120}?(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*(?:SGD|S\$|\$|\/\s*g|\/\s*gram|per\s*gram)/gi
+  ];
+
+  const candidates = extractCandidates(text, patterns);
+  if (!candidates.length) {
+    throw new Error("Cannot find Chow Tai Fook SG 24K / 999 price. No valid SGD 150-400 candidate found.");
+  }
+
+  // Prefer candidates whose surrounding text contains both a gold-quality clue and a price/unit clue.
+  const best = candidates.find((candidate) => /(?:24\s*K|999|足金|Gold)/i.test(candidate.raw) && /(?:S\$|SGD|\$|gram|\/\s*g)/i.test(candidate.raw)) || candidates[0];
+  return buildResult(best.raw, best.price);
+}
+
+async function fetchRenderedContent(browser, source) {
+  const context = await browser.newContext({
+    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36",
+    locale: "en-SG",
+    extraHTTPHeaders: BROWSER_HEADERS,
+    viewport: { width: 1366, height: 900 }
+  });
+
+  const page = await context.newPage();
+  try {
+    await page.goto(source.url, { waitUntil: "domcontentloaded", timeout: 60000 });
+    await page.waitForTimeout(6000);
+    const bodyText = await page.locator("body").innerText({ timeout: 10000 }).catch(() => "");
+    const html = await page.content();
+    return `${bodyText}\n\n${html}`;
+  } finally {
+    await context.close();
+  }
 }
 
 async function readJson(path, fallback) {
@@ -124,49 +184,71 @@ function formatChangeLine(previous, current) {
   return `${direction} ${current.brand}\nSGD ${Number(previous.price).toFixed(2)} → SGD ${Number(current.price).toFixed(2)} / gram\n${sign}${current.change.toFixed(2)} SGD/g`;
 }
 
+function formatStatusAlert(previous, current) {
+  if (current.status === "error") {
+    return `⚠️ ${current.brand}\n讀取失敗：${current.error}`;
+  }
+  if (previous?.status === "error" && current.status === "ok") {
+    return `✅ ${current.brand}\n讀取恢復：SGD ${Number(current.price).toFixed(2)} / gram`;
+  }
+  return null;
+}
+
 async function main() {
   const previous = await readJson("data/latest.json", { items: [] });
   const previousById = new Map((previous.items || []).map((item) => [item.id, item]));
   const checkedAt = new Date().toISOString();
   const items = [];
   const changes = [];
+  const statusAlerts = [];
 
-  for (const source of SOURCES) {
-    try {
-      const html = await fetchHtml(source.url);
-      const parsed = source.parser(html);
+  const browser = await chromium.launch({ headless: true });
+  try {
+    for (const source of SOURCES) {
       const prev = previousById.get(source.id);
-      const item = {
-        id: source.id,
-        brand: source.brand,
-        label: source.label,
-        url: source.url,
-        status: "ok",
-        price: parsed.price,
-        currency: parsed.currency,
-        unit: parsed.unit,
-        rawText: parsed.rawText,
-        checkedAt
-      };
-      if (prev?.status === "ok" && Number(prev.price) !== Number(item.price)) {
-        item.previousPrice = Number(prev.price);
-        item.change = Number((item.price - prev.price).toFixed(2));
-        changes.push({ previous: prev, current: item });
+      try {
+        const content = await fetchRenderedContent(browser, source);
+        const parsed = source.parser(content);
+        const item = {
+          id: source.id,
+          brand: source.brand,
+          label: source.label,
+          url: source.url,
+          status: "ok",
+          price: parsed.price,
+          currency: parsed.currency,
+          unit: parsed.unit,
+          rawText: parsed.rawText,
+          checkedAt
+        };
+        if (prev?.status === "ok" && Number(prev.price) !== Number(item.price)) {
+          item.previousPrice = Number(prev.price);
+          item.change = Number((item.price - prev.price).toFixed(2));
+          changes.push({ previous: prev, current: item });
+        }
+        const statusAlert = formatStatusAlert(prev, item);
+        if (statusAlert) statusAlerts.push(statusAlert);
+        items.push(item);
+      } catch (error) {
+        const item = {
+          id: source.id,
+          brand: source.brand,
+          label: source.label,
+          url: source.url,
+          status: "error",
+          error: error.message,
+          previousPrice: prev?.price ?? null,
+          checkedAt
+        };
+        if (prev?.status !== "error") {
+          const statusAlert = formatStatusAlert(prev, item);
+          if (statusAlert) statusAlerts.push(statusAlert);
+        }
+        items.push(item);
       }
-      items.push(item);
-    } catch (error) {
-      const prev = previousById.get(source.id);
-      items.push({
-        id: source.id,
-        brand: source.brand,
-        label: source.label,
-        url: source.url,
-        status: "error",
-        error: error.message,
-        previousPrice: prev?.price ?? null,
-        checkedAt
-      });
     }
+  } finally {
+    await browser.close();
   }
 
   const latest = { updatedAt: checkedAt, timezone: "Asia/Singapore", items };
@@ -175,19 +257,24 @@ async function main() {
   await writeJson("data/latest.json", latest);
   await writeJson("data/history.json", history.slice(-500));
 
-  console.log(items.map((i) => i.status === "ok" ? `${i.brand}: SGD ${i.price.toFixed(2)} / gram` : `${i.brand}: ${i.error}`).join("\n"));
+  console.log(items.map((i) => i.status === "ok" ? `${i.brand}: SGD ${i.price.toFixed(2)} / gram (${i.rawText})` : `${i.brand}: ${i.error}`).join("\n"));
 
-  if (changes.length) {
+  const alertLines = [
+    ...changes.map(({ previous, current }) => formatChangeLine(previous, current)),
+    ...statusAlerts
+  ];
+
+  if (alertLines.length) {
     const message = [
-      "🔔 新加坡 24K / 999 金價有變動",
+      "🔔 新加坡 24K / 999 金價監察更新",
       "",
-      ...changes.map(({ previous, current }) => formatChangeLine(previous, current)),
+      ...alertLines,
       "",
       `更新時間：${checkedAt}`
     ].join("\n");
     await sendTelegram(message);
   } else {
-    console.log("No price changes detected. Telegram notification not sent.");
+    console.log("No price/status changes detected. Telegram notification not sent.");
   }
 }
 
