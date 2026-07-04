@@ -16,15 +16,43 @@ async function writeJson(path, data) {
   await fs.writeFile(path, JSON.stringify(data, null, 2) + "\n", "utf8");
 }
 
+function formatSgtTime(value) {
+  if (!value) return "未更新";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "未更新";
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Singapore",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  }).formatToParts(date).reduce((acc, part) => {
+    acc[part.type] = part.value;
+    return acc;
+  }, {});
+  return `${parts.day} ${parts.month} ${parts.year}\n${parts.hour}:${parts.minute}:${parts.second} (SGT)`;
+}
+
 function formatMoney(value) {
   if (typeof value !== "number" || !Number.isFinite(value)) return "暫未能讀取";
-  return `SGD ${value.toFixed(2)} / gram`;
+  return `SGD ${value.toFixed(2)} / 克`;
+}
+
+function displayName(item) {
+  if (!item) return "";
+  if (item.id === "poh-heng-24k-999") return "🟡 Poh Heng";
+  if (item.id === "chow-tai-fook-sg-24k-999") return "🟠 Chow Tai Fook";
+  if (item.id === "lukfook-sg-formula-24k-999") return "💎 六福珠寶";
+  return item.brand;
 }
 
 function brandLine(item) {
   if (!item) return "";
-  if (item.status !== "ok") return `${item.brand}\n暫未能讀取`;
-  return `${item.brand}\n${formatMoney(Number(item.price))}`;
+  if (item.status !== "ok") return `${displayName(item)}\n⚠️ 暫未能讀取`;
+  return `${displayName(item)}\n💰 ${formatMoney(Number(item.price))}`;
 }
 
 function buildPriceMessage(latest) {
@@ -34,7 +62,7 @@ function buildPriceMessage(latest) {
   const lukfook = items.find((item) => item.id === "lukfook-sg-formula-24k-999");
 
   return [
-    "Singapore Gold Price",
+    "🇸🇬 新加坡 24K / 999 金價",
     "",
     brandLine(poh),
     "",
@@ -42,23 +70,43 @@ function buildPriceMessage(latest) {
     "",
     brandLine(lukfook),
     "",
-    `Last update: ${latest.updatedAt || "未更新"}`
+    "━━━━━━━━━━━━━━━━",
+    "",
+    "🕒 最後更新",
+    formatSgtTime(latest.updatedAt),
+    "",
+    "🤖 每小時自動更新"
   ].join("\n");
 }
 
 function buildHelpMessage() {
   return [
+    "🤖 Singapore Gold Monitor",
+    "",
     "可用指令：",
-    "/price - 查詢最新金價",
-    "/status - 查詢監察狀態",
-    "/help - 顯示指令"
+    "",
+    "💰 /price",
+    "查詢最新金價",
+    "",
+    "⚙️ /status",
+    "查看監察狀態",
+    "",
+    "❓ /help",
+    "顯示說明"
   ].join("\n");
 }
 
 function buildStatusMessage(latest) {
   const items = latest.items || [];
-  const lines = items.map((item) => `${item.brand}: ${item.status === "ok" ? "正常" : "暫未能讀取"}`);
-  return ["Gold Monitor Status", "", ...lines, "", `Last update: ${latest.updatedAt || "未更新"}`].join("\n");
+  const lines = items.map((item) => `${item.status === "ok" ? "🟢" : "🟡"} ${displayName(item).replace(/^[^\w\u4e00-\u9fff]+\s*/, "")}\n${item.status === "ok" ? "正常" : "暫未能讀取"}`);
+  return [
+    "⚙️ 金價監察狀態",
+    "",
+    ...lines,
+    "",
+    "🕒 最後檢查",
+    formatSgtTime(latest.updatedAt)
+  ].join("\n");
 }
 
 function telegramUrl(token, method) {
