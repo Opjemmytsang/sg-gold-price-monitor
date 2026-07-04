@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-04T02:55:42.474Z",
+  "updatedAt": "2026-07-04T05:30:40.638Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -12,9 +12,7 @@
       "currency": "SGD",
       "unit": "gram",
       "rawText": "24K / 999 at $254.00 / g",
-      "checkedAt": "2026-07-04T02:55:42.474Z",
-      "previousPrice": 252,
-      "change": 2
+      "checkedAt": "2026-07-04T05:30:40.638Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -22,20 +20,25 @@
       "label": "24K / 999",
       "url": "https://www.chowtaifook.com/sg",
       "status": "ok",
-      "price": 257,
+      "price": 259,
       "currency": "SGD",
       "unit": "gram",
-      "rawText": "999.9 Gold Selling Price SGD 257.00 /g",
-      "checkedAt": "2026-07-04T02:55:42.474Z"
+      "rawText": "999.9 Gold Selling Price SGD 259.00 /g",
+      "checkedAt": "2026-07-04T05:30:40.638Z",
+      "previousPrice": 257,
+      "change": 2
     },
     {
       "id": "lukfook-sg-formula-24k-999",
       "brand": "六福珠寶",
       "label": "24K / 999",
       "url": "#",
-      "status": "error",
-      "error": "請檢查金價設定。",
-      "checkedAt": "2026-07-04T02:55:42.474Z"
+      "status": "ok",
+      "price": 256,
+      "currency": "SGD",
+      "unit": "gram",
+      "rawText": "24K / 999",
+      "checkedAt": "2026-07-04T05:30:40.638Z"
     }
   ]
 }
