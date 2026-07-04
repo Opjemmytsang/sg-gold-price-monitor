@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Singapore Gold Price Monitor</title>
+  <title>Singapore Gold Monitor</title>
   <style>
     body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif; background:#f7f3ed; color:#1f1f1f; }
     main { max-width:980px; margin:auto; padding:28px 18px 48px; }
@@ -26,8 +26,8 @@
 </head>
 <body>
   <main>
-    <h1>Singapore Gold Price Monitor</h1>
-    <div class="sub">新加坡 24K / 999 每克金價監察。</div>
+    <h1>🇸🇬 Singapore Gold Monitor</h1>
+    <div class="sub">即時監察新加坡 24K / 999 每克金價</div>
     <button onclick="location.reload()">重新整理</button>
     <section id="cards" class="grid"></section>
     <div id="meta" class="meta"></div>
@@ -38,19 +38,32 @@
   </main>
   <script>
     const money = new Intl.NumberFormat('en-SG', { style:'currency', currency:'SGD', minimumFractionDigits:2 });
-    function price(item){ return item.status === 'ok' ? `${money.format(item.price)} / ${item.unit}` : '暫未能讀取'; }
-    function status(item){ return item.status === 'ok' ? '正常' : '暫未能讀取'; }
-    function publicLabel(item){ return item.id === 'lukfook-sg-formula-24k-999' ? '24K / 999' : item.label; }
+    function sgtTime(value){
+      if(!value) return '未更新';
+      const d = new Date(value);
+      if(Number.isNaN(d.getTime())) return '未更新';
+      const parts = new Intl.DateTimeFormat('en-GB', { timeZone:'Asia/Singapore', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false }).formatToParts(d).reduce((a,p)=>{a[p.type]=p.value; return a;}, {});
+      return `${parts.day} ${parts.month} ${parts.year}<br>${parts.hour}:${parts.minute}:${parts.second} (SGT)`;
+    }
+    function price(item){ return item.status === 'ok' ? `${money.format(item.price)} / 克` : '暫未能讀取'; }
+    function status(item){ return item.status === 'ok' ? '🟢 正常' : '🟡 請檢查'; }
+    function publicLabel(){ return '24K / 999'; }
     function publicUrl(item){ return item.url && item.url !== '#' ? item.url : ''; }
-    function card(item){ return `<article class="card ${item.status === 'ok' ? '' : 'error'}"><div class="brand"><strong>${item.brand}</strong><span class="badge">${publicLabel(item)}</span></div><div class="price">${item.status === 'ok' ? money.format(item.price) : '—'}</div><div class="unit">${item.status === 'ok' ? 'per ' + item.unit : '暫未能讀取'}</div></article>`; }
-    function row(item){ const url = publicUrl(item); return `<tr><td>${item.brand}</td><td>${publicLabel(item)}</td><td>${price(item)}</td><td>${status(item)}</td><td>${url ? `<a href="${url}" target="_blank" rel="noopener">開啟網站</a>` : '—'}</td></tr>`; }
+    function displayName(item){
+      if(item.id === 'poh-heng-24k-999') return '🟡 Poh Heng';
+      if(item.id === 'chow-tai-fook-sg-24k-999') return '🟠 Chow Tai Fook';
+      if(item.id === 'lukfook-sg-formula-24k-999') return '💎 六福珠寶';
+      return item.brand;
+    }
+    function card(item){ return `<article class="card ${item.status === 'ok' ? '' : 'error'}"><div class="brand"><strong>${displayName(item)}</strong><span class="badge">${publicLabel(item)}</span></div><div class="price">${item.status === 'ok' ? money.format(item.price) : '—'}</div><div class="unit">${item.status === 'ok' ? '/ 克' : '請檢查金價設定'}</div></article>`; }
+    function row(item){ const url = publicUrl(item); return `<tr><td>${displayName(item)}</td><td>${publicLabel(item)}</td><td>${price(item)}</td><td>${status(item)}</td><td>${url ? `<a href="${url}" target="_blank" rel="noopener">開啟網站</a>` : '—'}</td></tr>`; }
     async function load(){
       const res = await fetch(`data/latest.json?ts=${Date.now()}`);
       const data = await res.json();
       const items = data.items || [];
       document.getElementById('cards').innerHTML = items.length ? items.map(card).join('') : '<div class="card">暫時未有資料。</div>';
       document.getElementById('rows').innerHTML = items.map(row).join('');
-      document.getElementById('meta').innerHTML = `最後更新：${data.updatedAt || '未更新'}<br>時區：${data.timezone || 'Asia/Singapore'}`;
+      document.getElementById('meta').innerHTML = `🕒 最後更新<br>${sgtTime(data.updatedAt)}<br><br>🤖 每小時自動更新`;
     }
     load().catch(() => { document.getElementById('cards').innerHTML = `<div class="card error"><div class="price">—</div><div class="unit">暫未能讀取資料</div></div>`; });
   </script>
