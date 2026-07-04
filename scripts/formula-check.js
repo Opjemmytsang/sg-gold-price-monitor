@@ -8,6 +8,24 @@ function round2(value) {
   return Math.round(Number(value) * 100) / 100;
 }
 
+function formatSgtTime(value) {
+  const date = new Date(value || Date.now());
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Singapore",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  }).formatToParts(date).reduce((acc, part) => {
+    acc[part.type] = part.value;
+    return acc;
+  }, {});
+  return `${parts.day} ${parts.month} ${parts.year}\n${parts.hour}:${parts.minute}:${parts.second} (SGT)`;
+}
+
 async function readJson(path, fallback) {
   try {
     return JSON.parse(await fs.readFile(path, "utf8"));
@@ -54,11 +72,11 @@ function buildLukFookItem(latest) {
           ...filteredItems,
           {
             id: LUKFOOK_ID,
-            brand: "Luk Fook Jewellery SG",
-            label: "24K / 999 Formula Check",
+            brand: "六福珠寶",
+            label: "24K / 999",
             url: "#",
             status: "error",
-            error: "Cannot calculate Luk Fook formula because Poh Heng or Chow Tai Fook price is unavailable.",
+            error: "請檢查金價設定。",
             checkedAt
           }
         ]
@@ -79,21 +97,31 @@ function buildLukFookItem(latest) {
           ...filteredItems,
           {
             id: LUKFOOK_ID,
-            brand: "Luk Fook Jewellery SG",
-            label: "24K / 999 Formula Check",
+            brand: "六福珠寶",
+            label: "24K / 999",
             url: "#",
             status: "error",
-            error: `Formula mismatch: Poh Heng + 2 = SGD ${pohFormula.toFixed(2)}, Chow Tai Fook - 3 = SGD ${ctfFormula.toFixed(2)}. Difference = SGD ${diff.toFixed(2)} / gram.`,
+            error: "請檢查金價設定。",
             checkedAt
           }
         ]
       },
       alert: [
-        "Luk Fook SG price formula mismatch",
-        `Poh Heng: SGD ${Number(poh.price).toFixed(2)} + 2 = SGD ${pohFormula.toFixed(2)} / gram`,
-        `Chow Tai Fook: SGD ${Number(ctf.price).toFixed(2)} - 3 = SGD ${ctfFormula.toFixed(2)} / gram`,
-        `Difference: SGD ${diff.toFixed(2)} / gram`,
-        `Checked at: ${checkedAt}`
+        "🚨 六福金價異常",
+        "",
+        "🟡 Poh Heng + 2",
+        `➡️ SGD ${pohFormula.toFixed(2)} / 克`,
+        "",
+        "🟠 Chow Tai Fook - 3",
+        `➡️ SGD ${ctfFormula.toFixed(2)} / 克`,
+        "",
+        "❌ 相差",
+        `SGD ${Math.abs(diff).toFixed(2)} / 克`,
+        "",
+        "請檢查金價設定。",
+        "",
+        "🕒 檢查時間",
+        formatSgtTime(checkedAt)
       ].join("\n")
     };
   }
@@ -105,19 +133,14 @@ function buildLukFookItem(latest) {
         ...filteredItems,
         {
           id: LUKFOOK_ID,
-          brand: "Luk Fook Jewellery SG",
-          label: "24K / 999 Suggested",
+          brand: "六福珠寶",
+          label: "24K / 999",
           url: "#",
           status: "ok",
           price: pohFormula,
           currency: "SGD",
           unit: "gram",
-          rawText: `Poh Heng + 2 = SGD ${pohFormula.toFixed(2)}; Chow Tai Fook - 3 = SGD ${ctfFormula.toFixed(2)}; matched.`,
-          formula: {
-            pohHengPlus2: pohFormula,
-            chowTaiFookMinus3: ctfFormula,
-            difference: diff
-          },
+          rawText: "24K / 999",
           checkedAt
         }
       ]
