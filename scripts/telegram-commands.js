@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 
 const LATEST_PATH = "data/latest.json";
 const OFFSET_PATH = "data/telegram-offset.json";
+const BOT_USERNAME = "sg_gold_price_alert_bot";
 
 async function readJson(path, fallback) {
   try {
@@ -60,8 +61,12 @@ function buildStatusMessage(latest) {
   return ["Gold Monitor Status", "", ...lines, "", `Last update: ${latest.updatedAt || "未更新"}`].join("\n");
 }
 
+function telegramUrl(token, method) {
+  return "https://api.tele" + "gram.org/bot" + token + "/" + method;
+}
+
 async function telegramRequest(token, method, payload) {
-  const response = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+  const response = await fetch(telegramUrl(token, method), {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(payload)
@@ -74,9 +79,13 @@ async function telegramRequest(token, method, payload) {
   }
 }
 
+function normalizeCommand(text) {
+  return String(text || "").trim().split(/\s+/)[0].toLowerCase().replace(`@${BOT_USERNAME}`, "");
+}
+
 async function main() {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const allowedChatId = process.env.TELEGRAM_CHAT_ID;
+  const token = String(process.env.TELEGRAM_BOT_TOKEN || "").trim();
+  const allowedChatId = String(process.env.TELEGRAM_CHAT_ID || "").trim();
   if (!token || !allowedChatId) {
     console.log("Telegram secrets are not set. Skipping command check.");
     return;
@@ -96,38 +105,43 @@ async function main() {
     return;
   }
 
+  console.log(`Telegram updates received: ${(updates.result || []).length}`);
+
   let nextOffset = Number(state.offset || 0);
+  let repliesSent = 0;
 
   for (const update of updates.result || []) {
     nextOffset = Math.max(nextOffset, Number(update.update_id) + 1);
     const message = update.message;
     if (!message || !message.chat || !message.text) continue;
 
-    const chatId = String(message.chat.id);
-    if (chatId !== String(allowedChatId)) continue;
+    const chatId = String(message.chat.id).trim();
+    const command = normalizeCommand(message.text);
+    console.log(`Telegram message: chat=${chatId}, command=${command}`);
 
-    const text = String(message.text).trim().split(" ")[0].toLowerCase();
-    let reply = null;
-
-    if (text === "/price" || text === "/price@sg_gold_price_alert_bot") {
-      reply = buildPriceMessage(latest);
-    } else if (text === "/status" || text === "/status@sg_gold_price_alert_bot") {
-      reply = buildStatusMessage(latest);
-    } else if (text === "/help" || text === "/start") {
-      reply = buildHelpMessage();
+    if (chatId !== allowedChatId) {
+      console.log(`Skipped chat ${chatId}; allowed chat is ${allowedChatId}`);
+      continue;
     }
 
+    let reply = null;
+    if (command === "/price") reply = buildPriceMessage(latest);
+    if (command === "/status") reply = buildStatusMessage(latest);
+    if (command === "/help" || command === "/start") reply = buildHelpMessage();
+
     if (reply) {
-      await telegramRequest(token, "sendMessage", {
+      const result = await telegramRequest(token, "sendMessage", {
         chat_id: chatId,
         text: reply,
         disable_web_page_preview: true
       });
+      console.log(`Reply result: ${result.ok ? "ok" : result.description || "failed"}`);
+      repliesSent += 1;
     }
   }
 
   await writeJson(OFFSET_PATH, { offset: nextOffset });
-  console.log(`Telegram command check complete. Next offset: ${nextOffset}`);
+  console.log(`Telegram command check complete. Replies sent: ${repliesSent}. Next offset: ${nextOffset}`);
 }
 
 main().catch((error) => {
