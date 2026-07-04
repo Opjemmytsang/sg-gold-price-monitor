@@ -46,15 +46,22 @@ jobs:
         run: |
           node scripts/formula-check.js || echo "Formula check returned a non-zero status. Continuing."
 
+      - name: Handle Telegram commands
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          node scripts/telegram-commands.js || echo "Telegram command handler returned a non-zero status. Continuing."
+
       - name: Commit updated data
         run: |
-          if [[ -n $(git status --porcelain data/latest.json data/history.json) ]]; then
+          if [[ -n $(git status --porcelain data/latest.json data/history.json data/telegram-offset.json) ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git stash push --include-untracked data/latest.json data/history.json
+            git stash push --include-untracked data/latest.json data/history.json data/telegram-offset.json
             git pull --rebase origin main
             git stash pop || true
-            git add data/latest.json data/history.json
+            git add data/latest.json data/history.json data/telegram-offset.json
             git commit -m "Update Singapore 24K gold price data" || echo "No commit needed after rebase."
             git push || (git pull --rebase origin main && git push)
           else
