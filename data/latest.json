@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-04T02:14:51.623Z",
+  "updatedAt": "2026-07-04T02:55:42.474Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -8,11 +8,13 @@
       "label": "24K / 999",
       "url": "https://pohheng.com.sg/",
       "status": "ok",
-      "price": 252,
+      "price": 254,
       "currency": "SGD",
       "unit": "gram",
-      "rawText": "24K / 999 at $252.00 / g",
-      "checkedAt": "2026-07-04T02:14:51.623Z"
+      "rawText": "24K / 999 at $254.00 / g",
+      "checkedAt": "2026-07-04T02:55:42.474Z",
+      "previousPrice": 252,
+      "change": 2
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -24,19 +26,16 @@
       "currency": "SGD",
       "unit": "gram",
       "rawText": "999.9 Gold Selling Price SGD 257.00 /g",
-      "checkedAt": "2026-07-04T02:14:51.623Z"
+      "checkedAt": "2026-07-04T02:55:42.474Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
       "brand": "六福珠寶",
       "label": "24K / 999",
       "url": "#",
-      "status": "ok",
-      "price": 254,
-      "currency": "SGD",
-      "unit": "gram",
-      "rawText": "24K / 999",
-      "checkedAt": "2026-07-04T02:14:51.623Z"
+      "status": "error",
+      "error": "請檢查金價設定。",
+      "checkedAt": "2026-07-04T02:55:42.474Z"
     }
   ]
 }
