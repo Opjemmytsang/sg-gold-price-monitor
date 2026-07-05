@@ -3,8 +3,8 @@ name: Check Singapore 24K Gold Prices
 on:
   workflow_dispatch:
   schedule:
-    # Run once every hour.
-    - cron: "0 * * * *"
+    # Run every 30 minutes.
+    - cron: "0,30 * * * *"
 
 permissions:
   contents: write
@@ -45,6 +45,13 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           node scripts/formula-check.js || echo "Formula check returned a non-zero status. Continuing."
+
+      - name: Send scheduled Telegram quote
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          node scripts/send-scheduled-quote.js || echo "Scheduled quote returned a non-zero status. Continuing."
 
       - name: Handle Telegram commands
         env:
