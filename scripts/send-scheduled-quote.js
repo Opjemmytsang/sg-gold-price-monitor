@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 
 const LATEST_PATH = "data/latest.json";
+const NOTIFY_HOURS_SGT = new Set([0, 8, 10]);
 
 async function readJson(path, fallback) {
   try {
@@ -8,6 +9,17 @@ async function readJson(path, fallback) {
   } catch {
     return fallback;
   }
+}
+
+function getSgtHour(value) {
+  const date = new Date(value || Date.now());
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Singapore",
+    hour: "2-digit",
+    hour12: false
+  }).formatToParts(date);
+  const hour = parts.find((part) => part.type === "hour")?.value;
+  return Number(hour);
 }
 
 function formatSgtTime(value) {
@@ -62,7 +74,7 @@ function buildMessage(latest) {
     "🕒 Last Updated",
     formatSgtTime(latest.updatedAt),
     "",
-    "🤖 Scheduled Update (Every 30 Minutes)"
+    "🤖 Scheduled Quote"
   ].join("\n");
 }
 
@@ -98,6 +110,14 @@ async function sendTelegram(message) {
 
 async function main() {
   const latest = await readJson(LATEST_PATH, { items: [] });
+  const forceQuote = String(process.env.SEND_QUOTE_ALWAYS || "").toLowerCase() === "true";
+  const sgtHour = getSgtHour(latest.updatedAt || Date.now());
+
+  if (!forceQuote && !NOTIFY_HOURS_SGT.has(sgtHour)) {
+    console.log(`Scheduled quote skipped. Current SGT hour: ${sgtHour}. Notify hours: 00, 08, 10.`);
+    return;
+  }
+
   await sendTelegram(buildMessage(latest));
 }
 
