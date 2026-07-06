@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-06T17:31:16.790Z",
+  "updatedAt": "2026-07-06T18:01:22.380Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -12,7 +12,7 @@
       "currency": "SGD",
       "unit": "gram",
       "rawText": "24K / 999 at $254.00 / g",
-      "checkedAt": "2026-07-06T17:31:16.790Z"
+      "checkedAt": "2026-07-06T18:01:22.380Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -24,7 +24,7 @@
       "currency": "SGD",
       "unit": "gram",
       "rawText": "999.9 Gold Selling Price SGD 259.00 /g",
-      "checkedAt": "2026-07-06T17:31:16.790Z"
+      "checkedAt": "2026-07-06T18:01:22.380Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -36,7 +36,7 @@
       "currency": "SGD",
       "unit": "gram",
       "rawText": "24K / 999",
-      "checkedAt": "2026-07-06T17:31:16.790Z"
+      "checkedAt": "2026-07-06T18:01:22.380Z"
     }
   ]
 }
