@@ -1,0 +1,16 @@
+name = "sg-gold-price-monitor-trigger"
+main = "worker.js"
+compatibility_date = "2026-07-01"
+
+[triggers]
+crons = ["*/30 * * * *"]
+
+[vars]
+GITHUB_OWNER = "Opjemmytsang"
+GITHUB_REPO = "sg-gold-price-monitor"
+GITHUB_WORKFLOW = "check-prices.yml"
+GITHUB_REF = "main"
+
+# Required secrets after creating the Worker:
+# - GITHUB_TOKEN: GitHub fine-grained token with Actions: Read and Write access to this repo.
+# - TRIGGER_KEY: optional private key for manual /trigger testing.
