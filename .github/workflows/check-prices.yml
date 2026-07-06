@@ -3,8 +3,8 @@ name: Check Singapore 24K Gold Prices
 on:
   workflow_dispatch:
   schedule:
-    # Run every 30 minutes.
-    - cron: "0,30 * * * *"
+    # Update website every hour. Telegram quotes are sent only at 00:00, 08:00 and 10:00 SGT.
+    - cron: "0 * * * *"
 
 permissions:
   contents: write
@@ -50,6 +50,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SEND_QUOTE_ALWAYS: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           node scripts/send-scheduled-quote.js || echo "Scheduled quote returned a non-zero status. Continuing."
 
