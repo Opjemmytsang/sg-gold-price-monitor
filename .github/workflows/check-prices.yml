@@ -7,10 +7,6 @@ on:
         description: "Send Telegram quote immediately"
         required: false
         default: "true"
-  schedule:
-    # GitHub fallback: update website every 30 minutes.
-    # Telegram quotes are sent only at 00:00, 08:00 and 10:00 SGT.
-    - cron: "*/30 * * * *"
 
 permissions:
   contents: write
