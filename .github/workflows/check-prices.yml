@@ -3,8 +3,9 @@ name: Check Singapore 24K Gold Prices
 on:
   workflow_dispatch:
   schedule:
-    # Update website every hour. Telegram quotes are sent only at 00:00, 08:00 and 10:00 SGT.
-    - cron: "0 * * * *"
+    # Update website every 30 minutes to reduce missed GitHub schedule runs.
+    # Telegram quotes are sent only at 00:00, 08:00 and 10:00 SGT.
+    - cron: "*/30 * * * *"
 
 permissions:
   contents: write
