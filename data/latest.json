@@ -1,9 +1,5 @@
 {
-<<<<<<< Updated upstream
-  "updatedAt": "2026-07-06T14:16:11.617Z",
-=======
-  "updatedAt": "2026-07-06T14:16:57.331Z",
->>>>>>> Stashed changes
+  "updatedAt": "2026-07-06T14:31:21.031Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -16,11 +12,7 @@
       "currency": "SGD",
       "unit": "gram",
       "rawText": "24K / 999 at $254.00 / g",
-<<<<<<< Updated upstream
-      "checkedAt": "2026-07-06T14:16:11.617Z"
-=======
-      "checkedAt": "2026-07-06T14:16:57.331Z"
->>>>>>> Stashed changes
+      "checkedAt": "2026-07-06T14:31:21.031Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -32,11 +24,7 @@
       "currency": "SGD",
       "unit": "gram",
       "rawText": "999.9 Gold Selling Price SGD 259.00 /g",
-<<<<<<< Updated upstream
-      "checkedAt": "2026-07-06T14:16:11.617Z"
-=======
-      "checkedAt": "2026-07-06T14:16:57.331Z"
->>>>>>> Stashed changes
+      "checkedAt": "2026-07-06T14:31:21.031Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -48,11 +36,7 @@
       "currency": "SGD",
       "unit": "gram",
       "rawText": "24K / 999",
-<<<<<<< Updated upstream
-      "checkedAt": "2026-07-06T14:16:11.617Z"
-=======
-      "checkedAt": "2026-07-06T14:16:57.331Z"
->>>>>>> Stashed changes
+      "checkedAt": "2026-07-06T14:31:21.031Z"
     }
   ]
 }
