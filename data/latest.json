@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-08T03:30:52.632Z",
+  "updatedAt": "2026-07-08T04:00:50.047Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -12,7 +12,7 @@
       "currency": "SGD",
       "unit": "gram",
       "rawText": "24K / 999 at $254.00 / g",
-      "checkedAt": "2026-07-08T03:30:52.632Z"
+      "checkedAt": "2026-07-08T04:00:50.047Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -21,8 +21,8 @@
       "url": "https://www.chowtaifook.com/sg",
       "status": "error",
       "error": "Cannot find Chow Tai Fook SG 24K / 999 price. No valid SGD 150-400 candidate found.",
-      "previousPrice": 259,
-      "checkedAt": "2026-07-08T03:30:52.632Z"
+      "previousPrice": null,
+      "checkedAt": "2026-07-08T04:00:50.047Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -31,7 +31,7 @@
       "url": "#",
       "status": "error",
       "error": "請檢查金價設定。",
-      "checkedAt": "2026-07-08T03:30:52.632Z"
+      "checkedAt": "2026-07-08T04:00:50.047Z"
     }
   ]
 }
