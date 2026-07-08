@@ -13,7 +13,7 @@ permissions:
 
 concurrency:
   group: gold-price-monitor
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   check-prices:
@@ -56,27 +56,18 @@ jobs:
         run: |
           node scripts/send-scheduled-quote.js || echo "Scheduled quote returned a non-zero status. Continuing."
 
-      - name: Handle Telegram commands
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          node scripts/telegram-commands.js || echo "Telegram command handler returned a non-zero status. Continuing."
-
       - name: Commit updated data
         run: |
-          if [[ -n $(git status --porcelain data/latest.json data/history.json data/telegram-offset.json) ]]; then
+          if [[ -n $(git status --porcelain data/latest.json data/history.json) ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             cp data/latest.json /tmp/latest.json
             cp data/history.json /tmp/history.json
-            cp data/telegram-offset.json /tmp/telegram-offset.json
             git fetch origin main
             git reset --hard origin/main
             cp /tmp/latest.json data/latest.json
             cp /tmp/history.json data/history.json
-            cp /tmp/telegram-offset.json data/telegram-offset.json
-            git add data/latest.json data/history.json data/telegram-offset.json
+            git add data/latest.json data/history.json
             git commit -m "Update Singapore 24K gold price data" || echo "No commit needed after sync."
             git push
           else
