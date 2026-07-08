@@ -16,7 +16,7 @@ const SOURCES = [
     id: "chow-tai-fook-sg-24k-999",
     brand: "Chow Tai Fook SG",
     label: "24K / 999",
-    url: "https://www.chowtaifook.com/sg",
+    url: "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
     parser: parseChowTaiFook24K999
   }
 ];
@@ -48,6 +48,10 @@ function isValidGoldPrice(value) {
   return Number.isFinite(value) && value >= MIN_VALID_PRICE && value <= MAX_VALID_PRICE;
 }
 
+function toNumber(priceText) {
+  return Number(String(priceText || "").replace(/,/g, ""));
+}
+
 function buildResult(matchText, price) {
   const value = Number(price);
   if (!isValidGoldPrice(value)) {
@@ -69,7 +73,7 @@ function extractCandidates(text, patterns) {
     while ((match = pattern.exec(text)) !== null) {
       const raw = match[0];
       const priceText = match.groups?.price || match[1] || match[2];
-      const price = Number(priceText);
+      const price = toNumber(priceText);
       if (isValidGoldPrice(price)) {
         candidates.push({ price, raw });
       }
@@ -96,20 +100,40 @@ function parsePohHeng24K999(content) {
 
 function parseChowTaiFook24K999(content) {
   const text = normalizeText(content);
+  const qualityClue = /(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|999\s*gold|gold\s*price)/i;
+  const unitClue = /(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)/i;
+  const rejectClue = /(?:instalment|installment|monthly|from\s*S\$|qty|quantity|items?|cart|shipping|delivery|discount|promo|voucher)/i;
+
   const patterns = [
-    /(?:24\s*K|999(?:\.9)?|足金|999\.9\s*Gold|Gold\s*Price)[\s\S]{0,180}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*(?:\/\s*g|\/\s*gram|per\s*gram)?/gi,
-    /(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*(?:\/\s*g|\/\s*gram|per\s*gram)?[\s\S]{0,180}?(?:24\s*K|999(?:\.9)?|足金|Gold\s*Price)/gi,
-    /(?:999(?:\.9)?|24\s*K)[\s\S]{0,120}?(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*(?:SGD|S\$|\$|\/\s*g|\/\s*gram|per\s*gram)/gi
+    /(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|999\s*gold|gold\s*price)[\s\S]{0,260}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,120}?(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)/gi,
+    /(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)[\s\S]{0,160}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,180}?(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|gold\s*price)/gi,
+    /(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,180}?(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)[\s\S]{0,220}?(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|gold\s*price)/gi,
+    /(?:24\s*K|999(?:\.9)?|足金|pure\s*gold)[\s\S]{0,220}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)/gi
   ];
 
-  const candidates = extractCandidates(text, patterns);
+  const candidates = extractCandidates(text, patterns)
+    .filter((candidate) => qualityClue.test(candidate.raw))
+    .filter((candidate) => unitClue.test(candidate.raw) || /(?:24\s*K|999|足金|pure\s*gold)/i.test(candidate.raw))
+    .filter((candidate) => !rejectClue.test(candidate.raw));
+
   if (!candidates.length) {
-    throw new Error("Cannot find Chow Tai Fook SG 24K / 999 price. No valid SGD 150-400 candidate found.");
+    throw new Error("24K / 999 Gold price not found on Chow Tai Fook Singapore Pure Gold page. No valid SGD 150-400 per gram candidate found.");
   }
 
-  // Prefer candidates whose surrounding text contains both a gold-quality clue and a price/unit clue.
-  const best = candidates.find((candidate) => /(?:24\s*K|999|足金|Gold)/i.test(candidate.raw) && /(?:S\$|SGD|\$|gram|\/\s*g)/i.test(candidate.raw)) || candidates[0];
-  return buildResult(best.raw, best.price);
+  candidates.sort((a, b) => {
+    const score = (candidate) => {
+      let value = 0;
+      if (/24\s*K/i.test(candidate.raw)) value += 5;
+      if (/999/i.test(candidate.raw)) value += 5;
+      if (/pure\s*gold/i.test(candidate.raw)) value += 3;
+      if (unitClue.test(candidate.raw)) value += 4;
+      if (/per\s*gram|\/\s*g|\/\s*gram/i.test(candidate.raw)) value += 3;
+      return value;
+    };
+    return score(b) - score(a);
+  });
+
+  return buildResult(candidates[0].raw, candidates[0].price);
 }
 
 async function fetchRenderedContent(browser, source) {
