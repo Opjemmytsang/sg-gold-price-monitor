@@ -6,22 +6,12 @@ const MAX_VALID_PRICE = 400;
 const VERIFY_ATTEMPTS = 3;
 const VERIFY_REQUIRED_MATCHES = 2;
 const MAX_REASONABLE_PRICE_CHANGE = 5;
+const POH_HENG_ID = "poh-heng-24k-999";
+const CTF_ID = "chow-tai-fook-sg-24k-999";
 
 const SOURCES = [
-  {
-    id: "poh-heng-24k-999",
-    brand: "Poh Heng",
-    label: "24K / 999",
-    url: "https://pohheng.com.sg/",
-    parser: parsePohHeng24K999
-  },
-  {
-    id: "chow-tai-fook-sg-24k-999",
-    brand: "Chow Tai Fook SG",
-    label: "24K / 999",
-    url: "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
-    parser: parseChowTaiFook24K999
-  }
+  { id: POH_HENG_ID, brand: "Poh Heng", label: "24K / 999", url: "https://pohheng.com.sg/", parser: parsePohHeng24K999 },
+  { id: CTF_ID, brand: "Chow Tai Fook SG", label: "24K / 999", url: "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold", parser: parseChowTaiFook24K999 }
 ];
 
 const BROWSER_HEADERS = {
@@ -31,7 +21,7 @@ const BROWSER_HEADERS = {
 };
 
 function decodeEntities(text) {
-  return text
+  return String(text || "")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&#36;/g, "$")
@@ -41,7 +31,7 @@ function decodeEntities(text) {
 }
 
 function normalizeText(input) {
-  return decodeEntities(String(input || ""))
+  return decodeEntities(input)
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
     .replace(/<[^>]+>/g, " ")
@@ -59,15 +49,8 @@ function toNumber(priceText) {
 
 function buildResult(matchText, price) {
   const value = Number(price);
-  if (!isValidGoldPrice(value)) {
-    throw new Error(`Rejected invalid gold price candidate: ${price}`);
-  }
-  return {
-    price: value,
-    currency: "SGD",
-    unit: "gram",
-    rawText: normalizeText(matchText).slice(0, 220)
-  };
+  if (!isValidGoldPrice(value)) throw new Error(`Rejected invalid gold price candidate: ${price}`);
+  return { price: value, currency: "SGD", unit: "gram", rawText: normalizeText(matchText).slice(0, 220) };
 }
 
 function extractCandidates(text, patterns) {
@@ -77,8 +60,7 @@ function extractCandidates(text, patterns) {
     let match;
     while ((match = pattern.exec(text)) !== null) {
       const raw = match[0];
-      const priceText = match.groups?.price || match[1] || match[2];
-      const price = toNumber(priceText);
+      const price = toNumber(match.groups?.price || match[1] || match[2]);
       if (isValidGoldPrice(price)) candidates.push({ price, raw });
       if (match.index === pattern.lastIndex) pattern.lastIndex += 1;
     }
@@ -90,70 +72,39 @@ function parsePohHeng24K999(content) {
   const text = normalizeText(content);
   const patterns = [
     /24\s*K\s*\/\s*999(?:\.\d+)?\s*at\s*(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*\/\s*g/gi,
-    /24\s*K\s*\/\s*999(?:\.\d+)?\s*at\s*(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*\/\s*gram/gi,
-    /24\s*K\s*\/\s*999(?:\.\d+)?\s*at\s*(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)/gi
+    /24\s*K\s*\/\s*999(?:\.\d+)?\s*at\s*(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*\/\s*gram/gi
   ];
-
   const candidates = extractCandidates(text, patterns);
-  if (!candidates.length) {
-    throw new Error("Cannot find Poh Heng exact 24K / 999 at SGD price line. Expected format: 24K / 999 at $xxx.xx / g.");
-  }
+  if (!candidates.length) throw new Error("Cannot find Poh Heng exact 24K / 999 price line.");
   return buildResult(candidates[0].raw, candidates[0].price);
 }
 
 function parseChowTaiFook24K999(content) {
   const text = normalizeText(content);
 
+  // Strict rule: CTF must come from the site-wide gold selling price banner only.
+  // Never fall back to product cards such as "999 Gold pendant ... formatted: S$372".
   const exactSellingPricePatterns = [
-    /Today'?s\s+999(?:\.9)?\s+Gold\s+Selling\s+Price\s*(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*\/\s*gram/gi,
+    /Today'?s\s+999(?:\.9)?\s+Gold\s+Selling\s+Price\s*(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*\/\s*(?:g|gram)/gi,
     /999(?:\.9)?\s+Gold\s+Selling\s+Price\s*(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*\/\s*(?:g|gram)/gi,
-    /(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*\/\s*gram[\s\S]{0,80}?(?:999(?:\.9)?\s+Gold\s+Selling\s+Price|Pure\s+Gold)/gi
-  ];
-  const exactCandidates = extractCandidates(text, exactSellingPricePatterns);
-  if (exactCandidates.length) {
-    exactCandidates.sort((a, b) => {
-      const score = (candidate) => {
-        let value = 0;
-        if (/Today'?s/i.test(candidate.raw)) value += 5;
-        if (/999\.9|999/i.test(candidate.raw)) value += 5;
-        if (/Selling\s+Price/i.test(candidate.raw)) value += 5;
-        if (/\/\s*gram/i.test(candidate.raw)) value += 5;
-        return value;
-      };
-      return score(b) - score(a);
-    });
-    return buildResult(exactCandidates[0].raw, exactCandidates[0].price);
-  }
-
-  const qualityClue = /(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|999\s*gold|gold\s*price|gold\s*selling\s*price)/i;
-  const unitClue = /(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)/i;
-  const rejectClue = /(?:instalment|installment|monthly|from\s*S\$|qty|quantity|items?|cart|shipping|delivery|discount|promo|voucher)/i;
-  const patterns = [
-    /(?:Today'?s\s+)?(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|999\s*gold|gold\s*price|gold\s*selling\s*price)[\s\S]{0,260}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,120}?(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)/gi,
-    /(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)[\s\S]{0,160}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,180}?(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|gold\s*price|gold\s*selling\s*price)/gi,
-    /(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,180}?(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)[\s\S]{0,220}?(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|gold\s*price|gold\s*selling\s*price)/gi,
-    /(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|gold\s*selling\s*price)[\s\S]{0,220}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)/gi
+    /Gold\s+Selling\s+Price\s*(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*\/\s*(?:g|gram)/gi
   ];
 
-  const candidates = extractCandidates(text, patterns)
-    .filter((candidate) => qualityClue.test(candidate.raw))
-    .filter((candidate) => unitClue.test(candidate.raw) || /(?:24\s*K|999|足金|pure\s*gold)/i.test(candidate.raw))
-    .filter((candidate) => !rejectClue.test(candidate.raw));
+  const candidates = extractCandidates(text, exactSellingPricePatterns)
+    .filter((candidate) => /Selling\s+Price/i.test(candidate.raw))
+    .filter((candidate) => !/pendant|ring|bracelet|necklace|earrings|product|formatted|decimalPrice|sales|sku|item/i.test(candidate.raw));
 
   if (!candidates.length) {
-    throw new Error("24K / 999 Gold price not found on Chow Tai Fook Singapore Pure Gold page. No valid SGD 150-400 per gram candidate found.");
+    throw new Error("CTF site-wide gold selling price not found. Product prices are intentionally ignored.");
   }
 
   candidates.sort((a, b) => {
     const score = (candidate) => {
       let value = 0;
       if (/Today'?s/i.test(candidate.raw)) value += 5;
-      if (/24\s*K/i.test(candidate.raw)) value += 5;
-      if (/999/i.test(candidate.raw)) value += 5;
+      if (/999\.9|999/i.test(candidate.raw)) value += 5;
       if (/Selling\s+Price/i.test(candidate.raw)) value += 5;
-      if (/pure\s*gold/i.test(candidate.raw)) value += 3;
-      if (unitClue.test(candidate.raw)) value += 4;
-      if (/per\s*gram|\/\s*g|\/\s*gram/i.test(candidate.raw)) value += 3;
+      if (/\/\s*(?:g|gram)/i.test(candidate.raw)) value += 5;
       return value;
     };
     return score(b) - score(a);
@@ -167,16 +118,11 @@ function withCacheBuster(url) {
   return `${url}${separator}_=${Date.now()}`;
 }
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+function sleep(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
 
 async function fetchStaticContent(source) {
   const response = await fetch(withCacheBuster(source.url), {
-    headers: {
-      ...BROWSER_HEADERS,
-      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"
-    },
+    headers: { ...BROWSER_HEADERS, "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36" },
     redirect: "follow"
   });
   if (!response.ok) throw new Error(`Static fetch failed: HTTP ${response.status}`);
@@ -190,14 +136,13 @@ async function fetchRenderedContent(browser, source) {
     extraHTTPHeaders: BROWSER_HEADERS,
     viewport: { width: 1366, height: 900 }
   });
-
   const page = await context.newPage();
   try {
     await page.route("**/*", async (route) => {
       const request = route.request();
-      const resourceType = request.resourceType();
+      const type = request.resourceType();
       const url = request.url();
-      if (["image", "font", "media"].includes(resourceType) || /google-analytics|googletagmanager|doubleclick|facebook|tiktok|hotjar/i.test(url)) {
+      if (["image", "font", "media"].includes(type) || /google-analytics|googletagmanager|doubleclick|facebook|tiktok|hotjar/i.test(url)) {
         await route.abort().catch(() => {});
         return;
       }
@@ -218,19 +163,11 @@ async function fetchSourceContent(browser, source) {
   const errors = [];
   try {
     const staticContent = await fetchStaticContent(source);
-    try {
-      source.parser(staticContent);
-      return staticContent;
-    } catch (error) {
-      errors.push(`static: ${error.message}`);
-    }
-  } catch (error) {
-    errors.push(`static: ${error.message}`);
-  }
+    try { source.parser(staticContent); return staticContent; } catch (error) { errors.push(`static parse: ${error.message}`); }
+  } catch (error) { errors.push(`static: ${error.message}`); }
 
-  try {
-    return await fetchRenderedContent(browser, source);
-  } catch (error) {
+  try { return await fetchRenderedContent(browser, source); }
+  catch (error) {
     errors.push(`rendered: ${error.message}`);
     throw new Error(errors.join(" | "));
   }
@@ -239,21 +176,16 @@ async function fetchSourceContent(browser, source) {
 async function fetchVerifiedParsed(browser, source, prev) {
   const attempts = [];
   const errors = [];
-
   for (let attempt = 1; attempt <= VERIFY_ATTEMPTS; attempt += 1) {
     try {
       const content = await fetchSourceContent(browser, source);
       const parsed = source.parser(content);
       attempts.push({ attempt, parsed, price: Number(parsed.price) });
-    } catch (error) {
-      errors.push(`attempt ${attempt}: ${error.message}`);
-    }
+    } catch (error) { errors.push(`attempt ${attempt}: ${error.message}`); }
     if (attempt < VERIFY_ATTEMPTS) await sleep(1200);
   }
 
-  if (!attempts.length) {
-    throw new Error(`No successful price read. ${errors.join(" | ")}`);
-  }
+  if (!attempts.length) throw new Error(`No successful price read. ${errors.join(" | ")}`);
 
   const priceCounts = new Map();
   for (const attempt of attempts) {
@@ -265,28 +197,14 @@ async function fetchVerifiedParsed(browser, source, prev) {
 
   for (const group of priceCounts.values()) {
     if (group.length >= VERIFY_REQUIRED_MATCHES) {
-      return {
-        ...group[0].parsed,
-        verification: {
-          attempts: attempts.length,
-          matchedAttempts: group.length,
-          method: "multi-read consensus"
-        }
-      };
+      return { ...group[0].parsed, verification: { attempts: attempts.length, matchedAttempts: group.length, method: "multi-read consensus" } };
     }
   }
 
   if (prev?.status === "ok" && isValidGoldPrice(Number(prev.price))) {
     const sameAsPrevious = attempts.find((attempt) => Number(attempt.price) === Number(prev.price));
     if (sameAsPrevious) {
-      return {
-        ...sameAsPrevious.parsed,
-        verification: {
-          attempts: attempts.length,
-          matchedAttempts: 1,
-          method: "single read matched previous confirmed price"
-        }
-      };
+      return { ...sameAsPrevious.parsed, verification: { attempts: attempts.length, matchedAttempts: 1, method: "single read matched previous confirmed price" } };
     }
   }
 
@@ -294,10 +212,7 @@ async function fetchVerifiedParsed(browser, source, prev) {
   throw new Error(`Unstable price readings; no consensus reached. Readings: ${attemptedPrices}.`);
 }
 
-async function readJson(path, fallback) {
-  try { return JSON.parse(await fs.readFile(path, "utf8")); } catch { return fallback; }
-}
-
+async function readJson(path, fallback) { try { return JSON.parse(await fs.readFile(path, "utf8")); } catch { return fallback; } }
 async function writeJson(path, data) {
   await fs.mkdir(path.split("/").slice(0, -1).join("/"), { recursive: true });
   await fs.writeFile(path, JSON.stringify(data, null, 2) + "\n", "utf8");
@@ -306,10 +221,7 @@ async function writeJson(path, data) {
 async function sendTelegram(message) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!token || !chatId) {
-    console.log("Telegram secrets are not set. Skipping Telegram notification.");
-    return;
-  }
+  if (!token || !chatId) { console.log("Telegram secrets are not set. Skipping Telegram notification."); return; }
   const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -341,36 +253,15 @@ function findLastOkItem(history, sourceId) {
 
 function fallbackItemFromPrevious(source, prev, error, checkedAt) {
   if (prev?.status === "ok" && isValidGoldPrice(Number(prev.price))) {
-    return {
-      ...prev,
-      brand: source.brand,
-      label: source.label,
-      url: source.url,
-      status: "ok",
-      stale: true,
-      lastError: error.message,
-      checkedAt
-    };
+    return { ...prev, brand: source.brand, label: source.label, url: source.url, status: "ok", stale: true, lastError: error.message, checkedAt };
   }
-  return {
-    id: source.id,
-    brand: source.brand,
-    label: source.label,
-    url: source.url,
-    status: "error",
-    error: error.message,
-    previousPrice: prev?.price ?? null,
-    checkedAt
-  };
+  return { id: source.id, brand: source.brand, label: source.label, url: source.url, status: "error", error: error.message, previousPrice: prev?.price ?? null, checkedAt };
 }
 
-function requiresPriceConfirmation(source) {
-  return source.id === "poh-heng-24k-999";
-}
+function requiresPriceConfirmation(source) { return source.id === POH_HENG_ID; }
 
 function applyPriceConfirmation(source, prev, item, checkedAt) {
   if (prev?.status !== "ok" || !isValidGoldPrice(Number(prev.price))) return item;
-
   const previousPrice = Number(prev.price);
   const parsedPrice = Number(item.price);
   if (previousPrice === parsedPrice) return item;
@@ -380,12 +271,7 @@ function applyPriceConfirmation(source, prev, item, checkedAt) {
   if (!needsConfirmation) return item;
 
   if (Number(prev.pendingCandidatePrice) === parsedPrice) {
-    return {
-      ...item,
-      previousPrice,
-      change,
-      confirmedFromPending: true
-    };
+    return { ...item, previousPrice, change, confirmedFromPending: true };
   }
 
   return {
@@ -420,30 +306,19 @@ async function main() {
     const latestItem = latestPreviousById.get(source.id);
     previousById.set(source.id, latestItem?.status === "ok" ? latestItem : findLastOkItem(history, source.id) || latestItem);
   }
+
   const checkedAt = new Date().toISOString();
   const items = [];
   const changes = [];
   const statusAlerts = [];
-
   const browser = await chromium.launch({ headless: true });
+
   try {
     for (const source of SOURCES) {
       const prev = previousById.get(source.id);
       try {
         const parsed = await fetchVerifiedParsed(browser, source, prev);
-        const parsedItem = {
-          id: source.id,
-          brand: source.brand,
-          label: source.label,
-          url: source.url,
-          status: "ok",
-          price: parsed.price,
-          currency: parsed.currency,
-          unit: parsed.unit,
-          rawText: parsed.rawText,
-          verification: parsed.verification,
-          checkedAt
-        };
+        const parsedItem = { id: source.id, brand: source.brand, label: source.label, url: source.url, status: "ok", price: parsed.price, currency: parsed.currency, unit: parsed.unit, rawText: parsed.rawText, verification: parsed.verification, checkedAt };
         const item = applyPriceConfirmation(source, prev, parsedItem, checkedAt);
         if (prev?.status === "ok" && Number(prev.price) !== Number(item.price) && !item.pendingConfirmation) {
           item.previousPrice = Number(prev.price);
@@ -462,9 +337,7 @@ async function main() {
         items.push(item);
       }
     }
-  } finally {
-    await browser.close();
-  }
+  } finally { await browser.close(); }
 
   const latest = { updatedAt: checkedAt, timezone: "Asia/Singapore", items };
   history.push(latest);
@@ -473,20 +346,12 @@ async function main() {
 
   console.log(items.map((i) => i.status === "ok" ? `${i.brand}: SGD ${i.price.toFixed(2)} / gram (${i.pendingConfirmation ? "pending confirmation" : i.stale ? "stale fallback" : i.rawText})` : `${i.brand}: ${i.error}`).join("\n"));
 
-  const alertLines = [
-    ...changes.map(({ previous, current }) => formatChangeLine(previous, current)),
-    ...statusAlerts
-  ];
-
+  const alertLines = [...changes.map(({ previous, current }) => formatChangeLine(previous, current)), ...statusAlerts];
   if (alertLines.length) {
-    const message = ["🔔 新加坡 24K / 999 金價監察更新", "", ...alertLines, "", `更新時間：${checkedAt}`].join("\n");
-    await sendTelegram(message);
+    await sendTelegram(["🔔 新加坡 24K / 999 金價監察更新", "", ...alertLines, "", `更新時間：${checkedAt}`].join("\n"));
   } else {
     console.log("No price/status changes detected. Telegram notification not sent.");
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+main().catch((error) => { console.error(error); process.exit(1); });
