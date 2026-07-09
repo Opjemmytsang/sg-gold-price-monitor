@@ -22,7 +22,9 @@ const SOURCES = [
 ];
 
 const BROWSER_HEADERS = {
-  "accept-language": "en-SG,en;q=0.9,zh-HK;q=0.8,zh;q=0.7"
+  "accept-language": "en-SG,en;q=0.9,zh-HK;q=0.8,zh;q=0.7",
+  "cache-control": "no-cache",
+  "pragma": "no-cache"
 };
 
 function decodeEntities(text) {
@@ -83,18 +85,47 @@ function extractCandidates(text, patterns) {
   return candidates;
 }
 
+function scorePohHengCandidate(candidate) {
+  const raw = candidate.raw;
+  let score = 0;
+
+  if (/today'?s\s+999\s+gold\s+selling\s+price/i.test(raw)) score += 20;
+  if (/999\s+gold\s+selling\s+price/i.test(raw)) score += 16;
+  if (/24\s*K\s*\/\s*999/i.test(raw)) score += 14;
+  if (/\b999(?:\.9)?\b/i.test(raw)) score += 8;
+  if (/per\s*gram|\/\s*g|\/\s*gram|gram/i.test(raw)) score += 8;
+  if (/(?:S\$|SGD|\$)\s*[1-3]\d{2}(?:\.\d{1,2})?/i.test(raw)) score += 5;
+
+  if (/previous|was|history|old|last|yesterday/i.test(raw)) score -= 12;
+  if (/instalment|installment|monthly|from\s*S\$|qty|quantity|cart|shipping|delivery|discount|promo|voucher|save/i.test(raw)) score -= 20;
+
+  return score;
+}
+
 function parsePohHeng24K999(content) {
   const text = normalizeText(content);
+  const qualityClue = /(?:today'?s\s+999\s+gold\s+selling\s+price|999\s+gold\s+selling\s+price|24\s*K\s*\/\s*999|\b999(?:\.9)?\b)/i;
+  const unitClue = /(?:per\s*gram|\/\s*g|\/\s*gram|gram)/i;
+  const rejectClue = /(?:instalment|installment|monthly|from\s*S\$|qty|quantity|items?|cart|shipping|delivery|discount|promo|voucher|save|previous|was|history|old|last|yesterday)/i;
+
   const patterns = [
-    /24\s*K\s*\/\s*999(?:\.\d+)?\s*(?:at|:|-)?\s*(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*(?:per\s*gram|\/\s*g|\/\s*gram)?/gi,
-    /24\s*K\s*\/\s*999(?:\.\d+)?[\s\S]{0,120}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,80}?(?:per\s*gram|\/\s*g|\/\s*gram)/gi,
-    /(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,80}?(?:per\s*gram|\/\s*g|\/\s*gram)[\s\S]{0,120}?24\s*K\s*\/\s*999(?:\.\d+)?/gi
+    /today'?s\s+999\s+gold\s+selling\s+price[\s\S]{0,180}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,80}?(?:\/\s*g|\/\s*gram|per\s*gram|gram)/gi,
+    /999\s+gold\s+selling\s+price[\s\S]{0,180}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,80}?(?:\/\s*g|\/\s*gram|per\s*gram|gram)/gi,
+    /24\s*K\s*\/\s*999(?:\.\d+)?\s*(?:at|:|-)?\s*(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*(?:per\s*gram|\/\s*g|\/\s*gram|gram)?/gi,
+    /24\s*K\s*\/\s*999(?:\.\d+)?[\s\S]{0,180}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,100}?(?:per\s*gram|\/\s*g|\/\s*gram|gram)/gi,
+    /(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,100}?(?:per\s*gram|\/\s*g|\/\s*gram|gram)[\s\S]{0,180}?(?:today'?s\s+999\s+gold\s+selling\s+price|999\s+gold\s+selling\s+price|24\s*K\s*\/\s*999)/gi
   ];
 
-  const candidates = extractCandidates(text, patterns);
+  const candidates = extractCandidates(text, patterns)
+    .filter((candidate) => qualityClue.test(candidate.raw))
+    .filter((candidate) => unitClue.test(candidate.raw))
+    .filter((candidate) => !rejectClue.test(candidate.raw));
+
   if (!candidates.length) {
-    throw new Error("Cannot find Poh Heng 24K / 999 SGD per gram price. No valid SGD 150-400 candidate found.");
+    throw new Error("Cannot find Poh Heng Today's 999 Gold Selling Price. No valid SGD 150-400 per gram candidate found.");
   }
+
+  candidates.sort((a, b) => scorePohHengCandidate(b) - scorePohHengCandidate(a));
   return buildResult(candidates[0].raw, candidates[0].price);
 }
 
@@ -136,6 +167,11 @@ function parseChowTaiFook24K999(content) {
   return buildResult(candidates[0].raw, candidates[0].price);
 }
 
+function withCacheBuster(url) {
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}_=${Date.now()}`;
+}
+
 async function fetchRenderedContent(browser, source) {
   const context = await browser.newContext({
     userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36",
@@ -146,8 +182,18 @@ async function fetchRenderedContent(browser, source) {
 
   const page = await context.newPage();
   try {
-    await page.goto(source.url, { waitUntil: "domcontentloaded", timeout: 60000 });
-    await page.waitForTimeout(6000);
+    await page.route("**/*", async (route) => {
+      const request = route.request();
+      await route.continue({
+        headers: {
+          ...request.headers(),
+          "cache-control": "no-cache",
+          "pragma": "no-cache"
+        }
+      });
+    });
+    await page.goto(withCacheBuster(source.url), { waitUntil: "networkidle", timeout: 60000 });
+    await page.waitForTimeout(8000);
     const bodyText = await page.locator("body").innerText({ timeout: 10000 }).catch(() => "");
     const html = await page.content();
     return `${bodyText}\n\n${html}`;
