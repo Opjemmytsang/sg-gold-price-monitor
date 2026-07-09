@@ -3,9 +3,15 @@ import fs from "node:fs/promises";
 const DATA_PATH = "data/latest.json";
 const HISTORY_PATH = "data/history.json";
 const LUKFOOK_ID = "lukfook-sg-formula-24k-999";
+const POH_HENG_ID = "poh-heng-24k-999";
+const CTF_ID = "chow-tai-fook-sg-24k-999";
 
 function round2(value) {
   return Math.round(Number(value) * 100) / 100;
+}
+
+function isValidPrice(item) {
+  return item?.status === "ok" && Number.isFinite(Number(item.price));
 }
 
 function formatSgtTime(value) {
@@ -58,13 +64,12 @@ async function sendTelegram(message) {
 
 function buildLukFookItem(latest) {
   const items = latest.items || [];
-  const poh = items.find((item) => item.id === "poh-heng-24k-999");
-  const ctf = items.find((item) => item.id === "chow-tai-fook-sg-24k-999");
+  const poh = items.find((item) => item.id === POH_HENG_ID);
+  const ctf = items.find((item) => item.id === CTF_ID);
   const checkedAt = latest.updatedAt || new Date().toISOString();
-
   const filteredItems = items.filter((item) => item.id !== LUKFOOK_ID);
 
-  if (poh?.status !== "ok" || ctf?.status !== "ok") {
+  if (!isValidPrice(poh)) {
     return {
       latest: {
         ...latest,
@@ -76,7 +81,7 @@ function buildLukFookItem(latest) {
             label: "24K / 999",
             url: "#",
             status: "error",
-            error: "請檢查金價設定。",
+            error: "Poh Heng 金價讀取失敗，未能計算六福建議金價。",
             checkedAt
           }
         ]
@@ -86,6 +91,34 @@ function buildLukFookItem(latest) {
   }
 
   const pohFormula = round2(Number(poh.price) + 2);
+  const formulaItem = {
+    id: LUKFOOK_ID,
+    brand: "六福珠寶",
+    label: "24K / 999",
+    url: "#",
+    status: "ok",
+    price: pohFormula,
+    currency: "SGD",
+    unit: "gram",
+    rawText: "Poh Heng 24K / 999 + SGD 2.00",
+    basis: {
+      source: "Poh Heng",
+      sourcePrice: Number(poh.price),
+      adjustment: 2
+    },
+    checkedAt
+  };
+
+  if (!isValidPrice(ctf)) {
+    return {
+      latest: {
+        ...latest,
+        items: [...filteredItems, { ...formulaItem, note: "Chow Tai Fook 暫時未能讀取，只以 Poh Heng + SGD 2 計算。" }]
+      },
+      alert: null
+    };
+  }
+
   const ctfFormula = round2(Number(ctf.price) - 3);
   const diff = round2(pohFormula - ctfFormula);
 
@@ -93,21 +126,13 @@ function buildLukFookItem(latest) {
     return {
       latest: {
         ...latest,
-        items: [
-          ...filteredItems,
-          {
-            id: LUKFOOK_ID,
-            brand: "六福珠寶",
-            label: "24K / 999",
-            url: "#",
-            status: "error",
-            error: "請檢查金價設定。",
-            checkedAt
-          }
-        ]
+        items: [...filteredItems, formulaItem]
       },
       alert: [
-        "🚨 六福金價異常",
+        "⚠️ 新加坡金價對照差異",
+        "",
+        "六福建議金價已按 Poh Heng + 2 正常計算：",
+        `➡️ SGD ${pohFormula.toFixed(2)} / 克`,
         "",
         "🟡 Poh Heng + 2",
         `➡️ SGD ${pohFormula.toFixed(2)} / 克`,
@@ -115,10 +140,10 @@ function buildLukFookItem(latest) {
         "🟠 Chow Tai Fook - 3",
         `➡️ SGD ${ctfFormula.toFixed(2)} / 克`,
         "",
-        "❌ 相差",
+        "相差",
         `SGD ${Math.abs(diff).toFixed(2)} / 克`,
         "",
-        "請檢查金價設定。",
+        "請人工覆核對照價格。",
         "",
         "🕒 檢查時間",
         formatSgtTime(checkedAt)
@@ -129,21 +154,7 @@ function buildLukFookItem(latest) {
   return {
     latest: {
       ...latest,
-      items: [
-        ...filteredItems,
-        {
-          id: LUKFOOK_ID,
-          brand: "六福珠寶",
-          label: "24K / 999",
-          url: "#",
-          status: "ok",
-          price: pohFormula,
-          currency: "SGD",
-          unit: "gram",
-          rawText: "24K / 999",
-          checkedAt
-        }
-      ]
+      items: [...filteredItems, formulaItem]
     },
     alert: null
   };
