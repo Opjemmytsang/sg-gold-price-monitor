@@ -3,6 +3,9 @@ import { chromium } from "playwright";
 
 const MIN_VALID_PRICE = 150;
 const MAX_VALID_PRICE = 400;
+const VERIFY_ATTEMPTS = 3;
+const VERIFY_REQUIRED_MATCHES = 2;
+const MAX_REASONABLE_PRICE_CHANGE = 5;
 
 const SOURCES = [
   {
@@ -164,6 +167,10 @@ function withCacheBuster(url) {
   return `${url}${separator}_=${Date.now()}`;
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function fetchStaticContent(source) {
   const response = await fetch(withCacheBuster(source.url), {
     headers: {
@@ -227,6 +234,64 @@ async function fetchSourceContent(browser, source) {
     errors.push(`rendered: ${error.message}`);
     throw new Error(errors.join(" | "));
   }
+}
+
+async function fetchVerifiedParsed(browser, source, prev) {
+  const attempts = [];
+  const errors = [];
+
+  for (let attempt = 1; attempt <= VERIFY_ATTEMPTS; attempt += 1) {
+    try {
+      const content = await fetchSourceContent(browser, source);
+      const parsed = source.parser(content);
+      attempts.push({ attempt, parsed, price: Number(parsed.price) });
+    } catch (error) {
+      errors.push(`attempt ${attempt}: ${error.message}`);
+    }
+    if (attempt < VERIFY_ATTEMPTS) await sleep(1200);
+  }
+
+  if (!attempts.length) {
+    throw new Error(`No successful price read. ${errors.join(" | ")}`);
+  }
+
+  const priceCounts = new Map();
+  for (const attempt of attempts) {
+    const key = attempt.price.toFixed(2);
+    const group = priceCounts.get(key) || [];
+    group.push(attempt);
+    priceCounts.set(key, group);
+  }
+
+  for (const group of priceCounts.values()) {
+    if (group.length >= VERIFY_REQUIRED_MATCHES) {
+      return {
+        ...group[0].parsed,
+        verification: {
+          attempts: attempts.length,
+          matchedAttempts: group.length,
+          method: "multi-read consensus"
+        }
+      };
+    }
+  }
+
+  if (prev?.status === "ok" && isValidGoldPrice(Number(prev.price))) {
+    const sameAsPrevious = attempts.find((attempt) => Number(attempt.price) === Number(prev.price));
+    if (sameAsPrevious) {
+      return {
+        ...sameAsPrevious.parsed,
+        verification: {
+          attempts: attempts.length,
+          matchedAttempts: 1,
+          method: "single read matched previous confirmed price"
+        }
+      };
+    }
+  }
+
+  const attemptedPrices = attempts.map((attempt) => `SGD ${attempt.price.toFixed(2)}`).join(", ");
+  throw new Error(`Unstable price readings; no consensus reached. Readings: ${attemptedPrices}.`);
 }
 
 async function readJson(path, fallback) {
@@ -304,18 +369,21 @@ function requiresPriceConfirmation(source) {
 }
 
 function applyPriceConfirmation(source, prev, item, checkedAt) {
-  if (!requiresPriceConfirmation(source)) return item;
   if (prev?.status !== "ok" || !isValidGoldPrice(Number(prev.price))) return item;
 
   const previousPrice = Number(prev.price);
   const parsedPrice = Number(item.price);
   if (previousPrice === parsedPrice) return item;
 
+  const change = Number((parsedPrice - previousPrice).toFixed(2));
+  const needsConfirmation = requiresPriceConfirmation(source) || Math.abs(change) > MAX_REASONABLE_PRICE_CHANGE;
+  if (!needsConfirmation) return item;
+
   if (Number(prev.pendingCandidatePrice) === parsedPrice) {
     return {
       ...item,
       previousPrice,
-      change: Number((parsedPrice - previousPrice).toFixed(2)),
+      change,
       confirmedFromPending: true
     };
   }
@@ -335,6 +403,9 @@ function applyPriceConfirmation(source, prev, item, checkedAt) {
     pendingCandidatePrice: parsedPrice,
     pendingCandidateRawText: item.rawText,
     pendingCandidateCheckedAt: checkedAt,
+    pendingReason: requiresPriceConfirmation(source)
+      ? "Source requires two consecutive matching reads before alerting."
+      : `Price change ${change.toFixed(2)} exceeds safe threshold ${MAX_REASONABLE_PRICE_CHANGE.toFixed(2)}.`,
     lastError: `Pending confirmation: parsed SGD ${parsedPrice.toFixed(2)} but previous confirmed price is SGD ${previousPrice.toFixed(2)}.`,
     checkedAt
   };
@@ -359,8 +430,7 @@ async function main() {
     for (const source of SOURCES) {
       const prev = previousById.get(source.id);
       try {
-        const content = await fetchSourceContent(browser, source);
-        const parsed = source.parser(content);
+        const parsed = await fetchVerifiedParsed(browser, source, prev);
         const parsedItem = {
           id: source.id,
           brand: source.brand,
@@ -371,6 +441,7 @@ async function main() {
           currency: parsed.currency,
           unit: parsed.unit,
           rawText: parsed.rawText,
+          verification: parsed.verification,
           checkedAt
         };
         const item = applyPriceConfirmation(source, prev, parsedItem, checkedAt);
@@ -380,7 +451,7 @@ async function main() {
           changes.push({ previous: prev, current: item });
         }
         const statusAlert = formatStatusAlert(latestPreviousById.get(source.id), item);
-        if (statusAlert) statusAlerts.push(statusAlert);
+        if (statusAlert && !item.pendingConfirmation) statusAlerts.push(statusAlert);
         items.push(item);
       } catch (error) {
         const item = fallbackItemFromPrevious(source, prev, error, checkedAt);
