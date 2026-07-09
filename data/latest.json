@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-09T02:30:45.547Z",
+  "updatedAt": "2026-07-09T02:33:22.064Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -12,7 +12,7 @@
       "currency": "SGD",
       "unit": "gram",
       "rawText": "24K / 999 at $254.00 / g",
-      "checkedAt": "2026-07-09T02:30:45.547Z"
+      "checkedAt": "2026-07-09T02:33:22.064Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -24,7 +24,9 @@
       "currency": "SGD",
       "unit": "gram",
       "rawText": "PURE GOLD PRODUCTS 7.7 DEAL JEWELLERY WEDDING GIFTING HOUSE OF CTF Pure Gold Today's 999.9 Gold Selling Price S$ 257.0 /g",
-      "checkedAt": "2026-07-09T02:30:45.547Z"
+      "checkedAt": "2026-07-09T02:33:22.064Z",
+      "previousPrice": 259,
+      "change": -2
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -33,7 +35,7 @@
       "url": "#",
       "status": "error",
       "error": "請檢查金價設定。",
-      "checkedAt": "2026-07-09T02:30:45.547Z"
+      "checkedAt": "2026-07-09T02:33:22.064Z"
     }
   ]
 }
