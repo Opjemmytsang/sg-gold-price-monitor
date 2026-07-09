@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-09T02:49:25.154Z",
+  "updatedAt": "2026-07-09T03:00:48.505Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -8,21 +8,27 @@
       "label": "24K / 999",
       "url": "https://pohheng.com.sg/",
       "status": "ok",
-      "price": 254,
+      "price": 252,
       "currency": "SGD",
       "unit": "gram",
-      "rawText": "24K / 999 at $254.00 / g",
-      "checkedAt": "2026-07-09T02:49:25.154Z"
+      "rawText": "24K / 999 at $252.00 / g",
+      "checkedAt": "2026-07-09T03:00:48.505Z",
+      "previousPrice": 254,
+      "change": -2
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
       "brand": "Chow Tai Fook SG",
       "label": "24K / 999",
       "url": "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
-      "status": "error",
-      "error": "page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold?_=1783565417703\", waiting until \"networkidle\"\n",
-      "previousPrice": null,
-      "checkedAt": "2026-07-09T02:49:25.154Z"
+      "status": "ok",
+      "price": 372,
+      "currency": "SGD",
+      "unit": "gram",
+      "rawText": "999 Gold pendant {\"sales\":{\"decimalPrice\":{},\"value\":372.4,\"formatted\":\"S$372",
+      "checkedAt": "2026-07-09T03:00:48.505Z",
+      "previousPrice": 257,
+      "change": 115
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -30,17 +36,16 @@
       "label": "24K / 999",
       "url": "#",
       "status": "ok",
-      "price": 256,
+      "price": 254,
       "currency": "SGD",
       "unit": "gram",
       "rawText": "Poh Heng 24K / 999 + SGD 2.00",
       "basis": {
         "source": "Poh Heng",
-        "sourcePrice": 254,
+        "sourcePrice": 252,
         "adjustment": 2
       },
-      "note": "Chow Tai Fook 暫時未能讀取，只以 Poh Heng + SGD 2 計算。",
-      "checkedAt": "2026-07-09T02:49:25.154Z"
+      "checkedAt": "2026-07-09T03:00:48.505Z"
     }
   ]
 }
