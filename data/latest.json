@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-09T02:35:40.002Z",
+  "updatedAt": "2026-07-09T02:40:51.113Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -7,10 +7,12 @@
       "brand": "Poh Heng",
       "label": "24K / 999",
       "url": "https://pohheng.com.sg/",
-      "status": "error",
-      "error": "Cannot find Poh Heng Today's 999 Gold Selling Price. No valid SGD 150-400 per gram candidate found.",
-      "previousPrice": 254,
-      "checkedAt": "2026-07-09T02:35:40.002Z"
+      "status": "ok",
+      "price": 254,
+      "currency": "SGD",
+      "unit": "gram",
+      "rawText": "24K / 999 at $254.00 / g",
+      "checkedAt": "2026-07-09T02:40:51.113Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -18,9 +20,9 @@
       "label": "24K / 999",
       "url": "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
       "status": "error",
-      "error": "page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold?_=1783564550622\", waiting until \"networkidle\"\n",
-      "previousPrice": 257,
-      "checkedAt": "2026-07-09T02:35:40.002Z"
+      "error": "page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold?_=1783564906150\", waiting until \"networkidle\"\n",
+      "previousPrice": null,
+      "checkedAt": "2026-07-09T02:40:51.113Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -29,7 +31,7 @@
       "url": "#",
       "status": "error",
       "error": "請檢查金價設定。",
-      "checkedAt": "2026-07-09T02:35:40.002Z"
+      "checkedAt": "2026-07-09T02:40:51.113Z"
     }
   ]
 }
