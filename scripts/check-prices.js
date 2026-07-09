@@ -140,6 +140,18 @@ function withCacheBuster(url) {
   return `${url}${separator}_=${Date.now()}`;
 }
 
+async function fetchStaticContent(source) {
+  const response = await fetch(withCacheBuster(source.url), {
+    headers: {
+      ...BROWSER_HEADERS,
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"
+    },
+    redirect: "follow"
+  });
+  if (!response.ok) throw new Error(`Static fetch failed: HTTP ${response.status}`);
+  return await response.text();
+}
+
 async function fetchRenderedContent(browser, source) {
   const context = await browser.newContext({
     userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36",
@@ -152,15 +164,44 @@ async function fetchRenderedContent(browser, source) {
   try {
     await page.route("**/*", async (route) => {
       const request = route.request();
+      const resourceType = request.resourceType();
+      const url = request.url();
+      if (["image", "font", "media"].includes(resourceType) || /google-analytics|googletagmanager|doubleclick|facebook|tiktok|hotjar/i.test(url)) {
+        await route.abort().catch(() => {});
+        return;
+      }
       await route.continue({ headers: { ...request.headers(), "cache-control": "no-cache", "pragma": "no-cache" } });
     });
-    await page.goto(withCacheBuster(source.url), { waitUntil: "domcontentloaded", timeout: 45000 });
-    await page.waitForTimeout(8000);
+    await page.goto(withCacheBuster(source.url), { waitUntil: "domcontentloaded", timeout: 30000 });
+    await page.waitForLoadState("networkidle", { timeout: 8000 }).catch(() => {});
+    await page.waitForTimeout(3000);
     const bodyText = await page.locator("body").innerText({ timeout: 10000 }).catch(() => "");
     const html = await page.content();
     return `${bodyText}\n\n${html}`;
   } finally {
     await context.close();
+  }
+}
+
+async function fetchSourceContent(browser, source) {
+  const errors = [];
+  try {
+    const staticContent = await fetchStaticContent(source);
+    try {
+      source.parser(staticContent);
+      return staticContent;
+    } catch (error) {
+      errors.push(`static: ${error.message}`);
+    }
+  } catch (error) {
+    errors.push(`static: ${error.message}`);
+  }
+
+  try {
+    return await fetchRenderedContent(browser, source);
+  } catch (error) {
+    errors.push(`rendered: ${error.message}`);
+    throw new Error(errors.join(" | "));
   }
 }
 
@@ -201,6 +242,14 @@ function formatStatusAlert(previous, current) {
   return null;
 }
 
+function findLastOkItem(history, sourceId) {
+  for (let index = history.length - 1; index >= 0; index -= 1) {
+    const item = (history[index].items || []).find((entry) => entry.id === sourceId);
+    if (item?.status === "ok" && isValidGoldPrice(Number(item.price))) return item;
+  }
+  return null;
+}
+
 function fallbackItemFromPrevious(source, prev, error, checkedAt) {
   if (prev?.status === "ok" && isValidGoldPrice(Number(prev.price))) {
     return {
@@ -228,7 +277,13 @@ function fallbackItemFromPrevious(source, prev, error, checkedAt) {
 
 async function main() {
   const previous = await readJson("data/latest.json", { items: [] });
-  const previousById = new Map((previous.items || []).map((item) => [item.id, item]));
+  const history = await readJson("data/history.json", []);
+  const latestPreviousById = new Map((previous.items || []).map((item) => [item.id, item]));
+  const previousById = new Map();
+  for (const source of SOURCES) {
+    const latestItem = latestPreviousById.get(source.id);
+    previousById.set(source.id, latestItem?.status === "ok" ? latestItem : findLastOkItem(history, source.id) || latestItem);
+  }
   const checkedAt = new Date().toISOString();
   const items = [];
   const changes = [];
@@ -239,7 +294,7 @@ async function main() {
     for (const source of SOURCES) {
       const prev = previousById.get(source.id);
       try {
-        const content = await fetchRenderedContent(browser, source);
+        const content = await fetchSourceContent(browser, source);
         const parsed = source.parser(content);
         const item = {
           id: source.id,
@@ -258,13 +313,13 @@ async function main() {
           item.change = Number((item.price - prev.price).toFixed(2));
           changes.push({ previous: prev, current: item });
         }
-        const statusAlert = formatStatusAlert(prev, item);
+        const statusAlert = formatStatusAlert(latestPreviousById.get(source.id), item);
         if (statusAlert) statusAlerts.push(statusAlert);
         items.push(item);
       } catch (error) {
         const item = fallbackItemFromPrevious(source, prev, error, checkedAt);
-        if (item.status === "error" && prev?.status !== "error") {
-          const statusAlert = formatStatusAlert(prev, item);
+        if (item.status === "error" && latestPreviousById.get(source.id)?.status !== "error") {
+          const statusAlert = formatStatusAlert(latestPreviousById.get(source.id), item);
           if (statusAlert) statusAlerts.push(statusAlert);
         }
         items.push(item);
@@ -275,7 +330,6 @@ async function main() {
   }
 
   const latest = { updatedAt: checkedAt, timezone: "Asia/Singapore", items };
-  const history = await readJson("data/history.json", []);
   history.push(latest);
   await writeJson("data/latest.json", latest);
   await writeJson("data/history.json", history.slice(-500));
