@@ -25,15 +25,10 @@
       "label": "24K / 999",
       "url": "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
       "status": "ok",
-      "price": 372,
+      "price": 257,
       "currency": "SGD",
       "unit": "gram",
-      "rawText": "999 Gold pendant {\"sales\":{\"decimalPrice\":{},\"value\":372.4,\"formatted\":\"S$372",
-      "verification": {
-        "attempts": 3,
-        "matchedAttempts": 3,
-        "method": "multi-read consensus"
-      },
+      "rawText": "Today's 999.9 Gold Selling Price S$257.0/g",
       "checkedAt": "2026-07-09T11:30:53.295Z"
     },
     {
