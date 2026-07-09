@@ -299,6 +299,47 @@ function fallbackItemFromPrevious(source, prev, error, checkedAt) {
   };
 }
 
+function requiresPriceConfirmation(source) {
+  return source.id === "poh-heng-24k-999";
+}
+
+function applyPriceConfirmation(source, prev, item, checkedAt) {
+  if (!requiresPriceConfirmation(source)) return item;
+  if (prev?.status !== "ok" || !isValidGoldPrice(Number(prev.price))) return item;
+
+  const previousPrice = Number(prev.price);
+  const parsedPrice = Number(item.price);
+  if (previousPrice === parsedPrice) return item;
+
+  if (Number(prev.pendingCandidatePrice) === parsedPrice) {
+    return {
+      ...item,
+      previousPrice,
+      change: Number((parsedPrice - previousPrice).toFixed(2)),
+      confirmedFromPending: true
+    };
+  }
+
+  return {
+    ...prev,
+    brand: source.brand,
+    label: source.label,
+    url: source.url,
+    status: "ok",
+    price: previousPrice,
+    currency: prev.currency || item.currency,
+    unit: prev.unit || item.unit,
+    rawText: prev.rawText,
+    stale: true,
+    pendingConfirmation: true,
+    pendingCandidatePrice: parsedPrice,
+    pendingCandidateRawText: item.rawText,
+    pendingCandidateCheckedAt: checkedAt,
+    lastError: `Pending confirmation: parsed SGD ${parsedPrice.toFixed(2)} but previous confirmed price is SGD ${previousPrice.toFixed(2)}.`,
+    checkedAt
+  };
+}
+
 async function main() {
   const previous = await readJson("data/latest.json", { items: [] });
   const history = await readJson("data/history.json", []);
@@ -320,7 +361,7 @@ async function main() {
       try {
         const content = await fetchSourceContent(browser, source);
         const parsed = source.parser(content);
-        const item = {
+        const parsedItem = {
           id: source.id,
           brand: source.brand,
           label: source.label,
@@ -332,7 +373,8 @@ async function main() {
           rawText: parsed.rawText,
           checkedAt
         };
-        if (prev?.status === "ok" && Number(prev.price) !== Number(item.price)) {
+        const item = applyPriceConfirmation(source, prev, parsedItem, checkedAt);
+        if (prev?.status === "ok" && Number(prev.price) !== Number(item.price) && !item.pendingConfirmation) {
           item.previousPrice = Number(prev.price);
           item.change = Number((item.price - prev.price).toFixed(2));
           changes.push({ previous: prev, current: item });
@@ -358,7 +400,7 @@ async function main() {
   await writeJson("data/latest.json", latest);
   await writeJson("data/history.json", history.slice(-500));
 
-  console.log(items.map((i) => i.status === "ok" ? `${i.brand}: SGD ${i.price.toFixed(2)} / gram (${i.stale ? "stale fallback" : i.rawText})` : `${i.brand}: ${i.error}`).join("\n"));
+  console.log(items.map((i) => i.status === "ok" ? `${i.brand}: SGD ${i.price.toFixed(2)} / gram (${i.pendingConfirmation ? "pending confirmation" : i.stale ? "stale fallback" : i.rawText})` : `${i.brand}: ${i.error}`).join("\n"));
 
   const alertLines = [
     ...changes.map(({ previous, current }) => formatChangeLine(previous, current)),
