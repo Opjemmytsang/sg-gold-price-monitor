@@ -29,8 +29,17 @@
       "brand": "六福珠寶",
       "label": "24K / 999",
       "url": "#",
-      "status": "error",
-      "error": "請檢查金價設定。",
+      "status": "ok",
+      "price": 256,
+      "currency": "SGD",
+      "unit": "gram",
+      "rawText": "Poh Heng 24K / 999 + SGD 2.00",
+      "basis": {
+        "source": "Poh Heng",
+        "sourcePrice": 254,
+        "adjustment": 2
+      },
+      "note": "Chow Tai Fook 暫時未能讀取，只以 Poh Heng + SGD 2 計算。",
       "checkedAt": "2026-07-09T02:49:25.154Z"
     }
   ]
