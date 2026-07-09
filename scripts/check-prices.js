@@ -100,14 +100,36 @@ function parsePohHeng24K999(content) {
 
 function parseChowTaiFook24K999(content) {
   const text = normalizeText(content);
-  const qualityClue = /(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|999\s*gold|gold\s*price)/i;
+
+  const exactSellingPricePatterns = [
+    /Today'?s\s+999(?:\.9)?\s+Gold\s+Selling\s+Price\s*(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*\/\s*gram/gi,
+    /999(?:\.9)?\s+Gold\s+Selling\s+Price\s*(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*\/\s*(?:g|gram)/gi,
+    /(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)\s*\/\s*gram[\s\S]{0,80}?(?:999(?:\.9)?\s+Gold\s+Selling\s+Price|Pure\s+Gold)/gi
+  ];
+  const exactCandidates = extractCandidates(text, exactSellingPricePatterns);
+  if (exactCandidates.length) {
+    exactCandidates.sort((a, b) => {
+      const score = (candidate) => {
+        let value = 0;
+        if (/Today'?s/i.test(candidate.raw)) value += 5;
+        if (/999\.9|999/i.test(candidate.raw)) value += 5;
+        if (/Selling\s+Price/i.test(candidate.raw)) value += 5;
+        if (/\/\s*gram/i.test(candidate.raw)) value += 5;
+        return value;
+      };
+      return score(b) - score(a);
+    });
+    return buildResult(exactCandidates[0].raw, exactCandidates[0].price);
+  }
+
+  const qualityClue = /(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|999\s*gold|gold\s*price|gold\s*selling\s*price)/i;
   const unitClue = /(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)/i;
   const rejectClue = /(?:instalment|installment|monthly|from\s*S\$|qty|quantity|items?|cart|shipping|delivery|discount|promo|voucher)/i;
   const patterns = [
-    /(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|999\s*gold|gold\s*price)[\s\S]{0,260}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,120}?(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)/gi,
-    /(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)[\s\S]{0,160}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,180}?(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|gold\s*price)/gi,
-    /(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,180}?(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)[\s\S]{0,220}?(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|gold\s*price)/gi,
-    /(?:24\s*K|999(?:\.9)?|足金|pure\s*gold)[\s\S]{0,220}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)/gi
+    /(?:Today'?s\s+)?(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|999\s*gold|gold\s*price|gold\s*selling\s*price)[\s\S]{0,260}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,120}?(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)/gi,
+    /(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)[\s\S]{0,160}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,180}?(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|gold\s*price|gold\s*selling\s*price)/gi,
+    /(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,180}?(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)[\s\S]{0,220}?(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|gold\s*price|gold\s*selling\s*price)/gi,
+    /(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|gold\s*selling\s*price)[\s\S]{0,220}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)/gi
   ];
 
   const candidates = extractCandidates(text, patterns)
@@ -122,8 +144,10 @@ function parseChowTaiFook24K999(content) {
   candidates.sort((a, b) => {
     const score = (candidate) => {
       let value = 0;
+      if (/Today'?s/i.test(candidate.raw)) value += 5;
       if (/24\s*K/i.test(candidate.raw)) value += 5;
       if (/999/i.test(candidate.raw)) value += 5;
+      if (/Selling\s+Price/i.test(candidate.raw)) value += 5;
       if (/pure\s*gold/i.test(candidate.raw)) value += 3;
       if (unitClue.test(candidate.raw)) value += 4;
       if (/per\s*gram|\/\s*g|\/\s*gram/i.test(candidate.raw)) value += 3;
