@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-09T02:40:51.113Z",
+  "updatedAt": "2026-07-09T02:49:25.154Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -12,7 +12,7 @@
       "currency": "SGD",
       "unit": "gram",
       "rawText": "24K / 999 at $254.00 / g",
-      "checkedAt": "2026-07-09T02:40:51.113Z"
+      "checkedAt": "2026-07-09T02:49:25.154Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -20,9 +20,9 @@
       "label": "24K / 999",
       "url": "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
       "status": "error",
-      "error": "page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold?_=1783564906150\", waiting until \"networkidle\"\n",
+      "error": "page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold?_=1783565417703\", waiting until \"networkidle\"\n",
       "previousPrice": null,
-      "checkedAt": "2026-07-09T02:40:51.113Z"
+      "checkedAt": "2026-07-09T02:49:25.154Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -31,7 +31,7 @@
       "url": "#",
       "status": "error",
       "error": "請檢查金價設定。",
-      "checkedAt": "2026-07-09T02:40:51.113Z"
+      "checkedAt": "2026-07-09T02:49:25.154Z"
     }
   ]
 }
