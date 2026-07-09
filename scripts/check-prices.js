@@ -76,9 +76,7 @@ function extractCandidates(text, patterns) {
       const raw = match[0];
       const priceText = match.groups?.price || match[1] || match[2];
       const price = toNumber(priceText);
-      if (isValidGoldPrice(price)) {
-        candidates.push({ price, raw });
-      }
+      if (isValidGoldPrice(price)) candidates.push({ price, raw });
       if (match.index === pattern.lastIndex) pattern.lastIndex += 1;
     }
   }
@@ -97,7 +95,6 @@ function parsePohHeng24K999(content) {
   if (!candidates.length) {
     throw new Error("Cannot find Poh Heng exact 24K / 999 at SGD price line. Expected format: 24K / 999 at $xxx.xx / g.");
   }
-
   return buildResult(candidates[0].raw, candidates[0].price);
 }
 
@@ -106,7 +103,6 @@ function parseChowTaiFook24K999(content) {
   const qualityClue = /(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|999\s*gold|gold\s*price)/i;
   const unitClue = /(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)/i;
   const rejectClue = /(?:instalment|installment|monthly|from\s*S\$|qty|quantity|items?|cart|shipping|delivery|discount|promo|voucher)/i;
-
   const patterns = [
     /(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|999\s*gold|gold\s*price)[\s\S]{0,260}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,120}?(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)/gi,
     /(?:per\s*gram|\/\s*g|\/\s*gram|gram|克)[\s\S]{0,160}?(?:S\$|SGD|\$)\s*(?<price>[1-3]\d{2}(?:\.\d{1,2})?)[\s\S]{0,180}?(?:24\s*K|999(?:\.9)?|足金|pure\s*gold|gold\s*price)/gi,
@@ -156,15 +152,9 @@ async function fetchRenderedContent(browser, source) {
   try {
     await page.route("**/*", async (route) => {
       const request = route.request();
-      await route.continue({
-        headers: {
-          ...request.headers(),
-          "cache-control": "no-cache",
-          "pragma": "no-cache"
-        }
-      });
+      await route.continue({ headers: { ...request.headers(), "cache-control": "no-cache", "pragma": "no-cache" } });
     });
-    await page.goto(withCacheBuster(source.url), { waitUntil: "networkidle", timeout: 60000 });
+    await page.goto(withCacheBuster(source.url), { waitUntil: "domcontentloaded", timeout: 45000 });
     await page.waitForTimeout(8000);
     const bodyText = await page.locator("body").innerText({ timeout: 10000 }).catch(() => "");
     const html = await page.content();
@@ -175,11 +165,7 @@ async function fetchRenderedContent(browser, source) {
 }
 
 async function readJson(path, fallback) {
-  try {
-    return JSON.parse(await fs.readFile(path, "utf8"));
-  } catch {
-    return fallback;
-  }
+  try { return JSON.parse(await fs.readFile(path, "utf8")); } catch { return fallback; }
 }
 
 async function writeJson(path, data) {
@@ -190,34 +176,17 @@ async function writeJson(path, data) {
 async function sendTelegram(message) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
-
   if (!token || !chatId) {
     console.log("Telegram secrets are not set. Skipping Telegram notification.");
     return;
   }
-
   const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: message,
-      disable_web_page_preview: true
-    })
+    body: JSON.stringify({ chat_id: chatId, text: message, disable_web_page_preview: true })
   });
-
   const resultText = await response.text();
-  if (!response.ok) {
-    console.log("Telegram notification failed:", response.status, resultText);
-    return;
-  }
-
-  try {
-    const result = JSON.parse(resultText);
-    if (!result.ok) console.log("Telegram returned error:", resultText);
-  } catch {
-    console.log("Telegram response:", resultText);
-  }
+  if (!response.ok) console.log("Telegram notification failed:", response.status, resultText);
 }
 
 function formatChangeLine(previous, current) {
@@ -227,13 +196,34 @@ function formatChangeLine(previous, current) {
 }
 
 function formatStatusAlert(previous, current) {
-  if (current.status === "error") {
-    return `⚠️ ${current.brand}\n讀取失敗：${current.error}`;
-  }
-  if (previous?.status === "error" && current.status === "ok") {
-    return `✅ ${current.brand}\n讀取恢復：SGD ${Number(current.price).toFixed(2)} / gram`;
-  }
+  if (current.status === "error") return `⚠️ ${current.brand}\n讀取失敗：${current.error}`;
+  if (previous?.status === "error" && current.status === "ok") return `✅ ${current.brand}\n讀取恢復：SGD ${Number(current.price).toFixed(2)} / gram`;
   return null;
+}
+
+function fallbackItemFromPrevious(source, prev, error, checkedAt) {
+  if (prev?.status === "ok" && isValidGoldPrice(Number(prev.price))) {
+    return {
+      ...prev,
+      brand: source.brand,
+      label: source.label,
+      url: source.url,
+      status: "ok",
+      stale: true,
+      lastError: error.message,
+      checkedAt
+    };
+  }
+  return {
+    id: source.id,
+    brand: source.brand,
+    label: source.label,
+    url: source.url,
+    status: "error",
+    error: error.message,
+    previousPrice: prev?.price ?? null,
+    checkedAt
+  };
 }
 
 async function main() {
@@ -272,17 +262,8 @@ async function main() {
         if (statusAlert) statusAlerts.push(statusAlert);
         items.push(item);
       } catch (error) {
-        const item = {
-          id: source.id,
-          brand: source.brand,
-          label: source.label,
-          url: source.url,
-          status: "error",
-          error: error.message,
-          previousPrice: prev?.price ?? null,
-          checkedAt
-        };
-        if (prev?.status !== "error") {
+        const item = fallbackItemFromPrevious(source, prev, error, checkedAt);
+        if (item.status === "error" && prev?.status !== "error") {
           const statusAlert = formatStatusAlert(prev, item);
           if (statusAlert) statusAlerts.push(statusAlert);
         }
@@ -299,7 +280,7 @@ async function main() {
   await writeJson("data/latest.json", latest);
   await writeJson("data/history.json", history.slice(-500));
 
-  console.log(items.map((i) => i.status === "ok" ? `${i.brand}: SGD ${i.price.toFixed(2)} / gram (${i.rawText})` : `${i.brand}: ${i.error}`).join("\n"));
+  console.log(items.map((i) => i.status === "ok" ? `${i.brand}: SGD ${i.price.toFixed(2)} / gram (${i.stale ? "stale fallback" : i.rawText})` : `${i.brand}: ${i.error}`).join("\n"));
 
   const alertLines = [
     ...changes.map(({ previous, current }) => formatChangeLine(previous, current)),
@@ -307,13 +288,7 @@ async function main() {
   ];
 
   if (alertLines.length) {
-    const message = [
-      "🔔 新加坡 24K / 999 金價監察更新",
-      "",
-      ...alertLines,
-      "",
-      `更新時間：${checkedAt}`
-    ].join("\n");
+    const message = ["🔔 新加坡 24K / 999 金價監察更新", "", ...alertLines, "", `更新時間：${checkedAt}`].join("\n");
     await sendTelegram(message);
   } else {
     console.log("No price/status changes detected. Telegram notification not sent.");
