@@ -29,7 +29,7 @@
   <main>
     <h1>🇸🇬 Singapore Gold Monitor</h1>
     <div class="sub">Live monitoring of Singapore 24K / 999 gold price per gram</div>
-    <button id="refreshBtn" onclick="load(true)">Refresh</button>
+    <button id="refreshBtn" onclick="refreshNow()">Refresh</button>
     <section id="cards" class="grid"></section>
     <div id="meta" class="meta"></div>
     <table>
@@ -38,6 +38,7 @@
     </table>
   </main>
   <script>
+    const REFRESH_ENDPOINT = window.SG_GOLD_REFRESH_ENDPOINT || '';
     const money = new Intl.NumberFormat('en-SG', { style:'currency', currency:'SGD', minimumFractionDigits:2 });
     function sgtTime(value){
       if(!value) return 'Not updated';
@@ -60,18 +61,27 @@
       return `<article class="card ${item.status === 'ok' ? '' : 'error'}"><div class="brand"><strong>${displayName(item)}</strong><span class="badge">${publicLabel(item)}</span></div><div class="price">${item.status === 'ok' ? money.format(item.price) : '—'}</div><div class="unit">${item.status === 'ok' ? '/ gram' : 'Please check gold price setting'}</div></article>`;
     }
     function row(item){ const url = publicUrl(item); return `<tr><td>${displayName(item)}</td><td>${publicLabel(item)}</td><td>${price(item)}</td><td>${status(item)}</td><td>${url ? `<a href="${url}" target="_blank" rel="noopener">Open website</a>` : '—'}</td></tr>`; }
-    async function load(manual=false){
+    async function load(){
+      const res = await fetch(`data/latest.json?ts=${Date.now()}`, { cache:'no-store' });
+      const data = await res.json();
+      const items = data.items || [];
+      document.getElementById('cards').innerHTML = items.length ? items.map(card).join('') : '<div class="card">No data available.</div>';
+      document.getElementById('rows').innerHTML = items.map(row).join('');
+      document.getElementById('meta').innerHTML = `🕒 Last updated<br>${sgtTime(data.updatedAt)}`;
+    }
+    async function refreshNow(){
       const btn = document.getElementById('refreshBtn');
-      if(manual){ btn.disabled = true; btn.textContent = 'Refreshing...'; }
+      btn.disabled = true;
+      btn.textContent = 'Refreshing...';
       try{
-        const res = await fetch(`data/latest.json?ts=${Date.now()}`, { cache:'no-store' });
-        const data = await res.json();
-        const items = data.items || [];
-        document.getElementById('cards').innerHTML = items.length ? items.map(card).join('') : '<div class="card">No data available.</div>';
-        document.getElementById('rows').innerHTML = items.map(row).join('');
-        document.getElementById('meta').innerHTML = `🕒 Last updated<br>${sgtTime(data.updatedAt)}`;
+        if(REFRESH_ENDPOINT){
+          await fetch(REFRESH_ENDPOINT, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ source:'dashboard' }) });
+          await new Promise(resolve => setTimeout(resolve, 12000));
+        }
+        await load();
       } finally {
-        if(manual){ btn.disabled = false; btn.textContent = 'Refresh'; }
+        btn.disabled = false;
+        btn.textContent = 'Refresh';
       }
     }
     load().catch(() => { document.getElementById('cards').innerHTML = `<div class="card error"><div class="price">—</div><div class="unit">Unable to load data</div></div>`; });
