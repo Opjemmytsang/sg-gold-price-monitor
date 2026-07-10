@@ -43,6 +43,7 @@
   <script>
     const REFRESH_ENDPOINT = window.SG_GOLD_REFRESH_ENDPOINT || '';
     const money = new Intl.NumberFormat('en-SG', { style:'currency', currency:'SGD', minimumFractionDigits:2 });
+    let lastUpdatedAt = '';
     function sgtTime(value){
       if(!value) return 'Not updated';
       const d = new Date(value);
@@ -64,24 +65,49 @@
       return `<article class="card ${item.status === 'ok' ? '' : 'error'}"><div class="brand"><strong>${displayName(item)}</strong><span class="badge">${publicLabel(item)}</span></div><div class="price">${item.status === 'ok' ? money.format(item.price) : '—'}</div><div class="unit">${item.status === 'ok' ? '/ gram' : 'Please check gold price setting'}</div></article>`;
     }
     function row(item){ const url = publicUrl(item); return `<tr><td>${displayName(item)}</td><td>${publicLabel(item)}</td><td>${price(item)}</td><td>${status(item)}</td><td>${url ? `<a href="${url}" target="_blank" rel="noopener">Open website</a>` : '—'}</td></tr>`; }
+    function setMeta(data, extra=''){
+      document.getElementById('meta').innerHTML = `🕒 Last updated<br>${sgtTime(data.updatedAt)}${extra ? `<br><br>${extra}` : ''}`;
+    }
     async function load(){
       const res = await fetch(`data/latest.json?ts=${Date.now()}`, { cache:'no-store' });
       const data = await res.json();
       const items = data.items || [];
+      lastUpdatedAt = data.updatedAt || '';
       document.getElementById('cards').innerHTML = items.length ? items.map(card).join('') : '<div class="card">No data available.</div>';
       document.getElementById('rows').innerHTML = items.map(row).join('');
-      document.getElementById('meta').innerHTML = `🕒 Last updated<br>${sgtTime(data.updatedAt)}`;
+      setMeta(data);
+      return data;
+    }
+    async function waitForUpdatedData(previousUpdatedAt){
+      const started = Date.now();
+      while(Date.now() - started < 180000){
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        const data = await load();
+        if(data.updatedAt && data.updatedAt !== previousUpdatedAt){
+          setMeta(data, '✅ Updated');
+          return;
+        }
+        setMeta(data, '⏳ Updating...');
+      }
+      const data = await load();
+      setMeta(data, '⏳ Update triggered. Please press Refresh again later.');
     }
     async function refreshNow(){
       const btn = document.getElementById('refreshBtn');
+      const previousUpdatedAt = lastUpdatedAt;
       btn.disabled = true;
       btn.textContent = 'Refreshing...';
       try{
         if(REFRESH_ENDPOINT){
-          await fetch(REFRESH_ENDPOINT, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ source:'dashboard' }) });
-          await new Promise(resolve => setTimeout(resolve, 12000));
+          const response = await fetch(REFRESH_ENDPOINT, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ source:'dashboard' }) });
+          if(!response.ok) throw new Error(`Refresh trigger failed: ${response.status}`);
+          document.getElementById('meta').innerHTML += '<br><br>⏳ Updating...';
+          await waitForUpdatedData(previousUpdatedAt);
+        } else {
+          await load();
         }
-        await load();
+      } catch(error) {
+        document.getElementById('meta').innerHTML += `<br><br>🟡 Refresh failed`;
       } finally {
         btn.disabled = false;
         btn.textContent = 'Refresh';
