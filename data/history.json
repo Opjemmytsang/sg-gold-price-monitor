@@ -4716,5 +4716,69 @@
         "checkedAt": "2026-07-10T02:21:36.334Z"
       }
     ]
+  },
+  {
+    "updatedAt": "2026-07-10T02:25:17.083Z",
+    "timezone": "Asia/Singapore",
+    "items": [
+      {
+        "id": "poh-heng-24k-999",
+        "brand": "Poh Heng",
+        "label": "24K / 999",
+        "url": "https://pohheng.com.sg/",
+        "status": "ok",
+        "price": 252,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "24K / 999 at $252.00 / g",
+        "verification": {
+          "attempts": 3,
+          "matchedAttempts": 3,
+          "method": "multi-read consensus"
+        },
+        "checkedAt": "2026-07-10T02:25:17.083Z",
+        "stale": true,
+        "pendingConfirmation": true,
+        "pendingCandidatePrice": 254,
+        "pendingCandidateRawText": "24K / 999 at $254.00 / g",
+        "pendingCandidateCheckedAt": "2026-07-10T02:25:17.083Z",
+        "pendingReason": "Source requires two consecutive matching reads before alerting.",
+        "lastError": "Pending confirmation: parsed SGD 254.00 but previous confirmed price is SGD 252.00."
+      },
+      {
+        "id": "chow-tai-fook-sg-24k-999",
+        "brand": "Chow Tai Fook SG",
+        "label": "24K / 999",
+        "url": "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
+        "status": "ok",
+        "price": 257,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "Today's 999.9 Gold Selling Price S$ 257.0 /g",
+        "verification": {
+          "attempts": 3,
+          "matchedAttempts": 3,
+          "method": "multi-read consensus"
+        },
+        "checkedAt": "2026-07-10T02:25:17.083Z"
+      },
+      {
+        "id": "lukfook-sg-formula-24k-999",
+        "brand": "六福珠寶",
+        "label": "24K / 999",
+        "url": "#",
+        "status": "ok",
+        "price": 254,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "Poh Heng 24K / 999 + SGD 2.00",
+        "basis": {
+          "source": "Poh Heng",
+          "sourcePrice": 252,
+          "adjustment": 2
+        },
+        "checkedAt": "2026-07-10T02:25:17.083Z"
+      }
+    ]
   }
 ]
