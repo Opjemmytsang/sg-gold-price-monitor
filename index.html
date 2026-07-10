@@ -38,6 +38,9 @@
     </table>
   </main>
   <script>
+    window.SG_GOLD_REFRESH_ENDPOINT = "https://sg-gold-trigger.arwing28.workers.dev";
+  </script>
+  <script>
     const REFRESH_ENDPOINT = window.SG_GOLD_REFRESH_ENDPOINT || '';
     const money = new Intl.NumberFormat('en-SG', { style:'currency', currency:'SGD', minimumFractionDigits:2 });
     function sgtTime(value){
