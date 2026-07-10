@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-10T02:25:17.083Z",
+  "updatedAt": "2026-07-10T02:30:51.361Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -8,23 +8,19 @@
       "label": "24K / 999",
       "url": "https://pohheng.com.sg/",
       "status": "ok",
-      "price": 252,
+      "price": 254,
       "currency": "SGD",
       "unit": "gram",
-      "rawText": "24K / 999 at $252.00 / g",
+      "rawText": "24K / 999 at $254.00 / g",
       "verification": {
         "attempts": 3,
-        "matchedAttempts": 3,
+        "matchedAttempts": 2,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-07-10T02:25:17.083Z",
-      "stale": true,
-      "pendingConfirmation": true,
-      "pendingCandidatePrice": 254,
-      "pendingCandidateRawText": "24K / 999 at $254.00 / g",
-      "pendingCandidateCheckedAt": "2026-07-10T02:25:17.083Z",
-      "pendingReason": "Source requires two consecutive matching reads before alerting.",
-      "lastError": "Pending confirmation: parsed SGD 254.00 but previous confirmed price is SGD 252.00."
+      "checkedAt": "2026-07-10T02:30:51.361Z",
+      "previousPrice": 252,
+      "change": 2,
+      "confirmedFromPending": true
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -41,7 +37,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-07-10T02:25:17.083Z"
+      "checkedAt": "2026-07-10T02:30:51.361Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -52,13 +48,13 @@
       "price": 254,
       "currency": "SGD",
       "unit": "gram",
-      "rawText": "Poh Heng 24K / 999 + SGD 2.00",
+      "rawText": "Chow Tai Fook SG 999.9 Gold Selling Price - SGD 3.00",
       "basis": {
-        "source": "Poh Heng",
-        "sourcePrice": 252,
-        "adjustment": 2
+        "source": "Chow Tai Fook SG",
+        "sourcePrice": 257,
+        "adjustment": -3
       },
-      "checkedAt": "2026-07-10T02:25:17.083Z"
+      "checkedAt": "2026-07-10T02:30:51.361Z"
     }
   ]
 }
