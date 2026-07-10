@@ -14,10 +14,9 @@
     .brand { display:flex; justify-content:space-between; gap:12px; color:#6f6a63; margin-bottom:12px; }
     .badge { border:1px solid #ecd7b3; background:#f5ead8; color:#6e4d1d; border-radius:999px; padding:5px 9px; font-size:12px; }
     .price { font-size:clamp(40px,7vw,64px); font-weight:760; letter-spacing:-.05em; line-height:1; color:#b88a44; margin:8px 0 10px; }
-    .unit,.meta,.note { color:#6f6a63; font-size:14px; line-height:1.6; }
+    .unit,.meta { color:#6f6a63; font-size:14px; line-height:1.6; }
     .error .price { color:#b3261e; font-size:28px; letter-spacing:0; }
     .meta { margin-top:22px; }
-    .note { background:#fff8ea; border:1px solid #eadfce; border-radius:16px; padding:12px 14px; margin:0 0 18px; }
     table { width:100%; border-collapse:collapse; margin-top:22px; background:white; border-radius:16px; overflow:hidden; }
     th,td { text-align:left; padding:13px; border-bottom:1px solid #eadfce; font-size:14px; }
     th { color:#6f6a63; background:#fff8ea; }
@@ -30,8 +29,7 @@
   <main>
     <h1>🇸🇬 Singapore Gold Monitor</h1>
     <div class="sub">Live monitoring of Singapore 24K / 999 gold price per gram</div>
-    <button id="refreshBtn" onclick="load(true)">Refresh latest saved data</button>
-    <div class="note">六福價錢公式已鎖定：Chow Tai Fook SG 999.9 Gold Selling Price − SGD 3.00。Refresh 會重新讀取 GitHub 最新儲存數據；即時抓取網站需由 GitHub Actions 執行。</div>
+    <button id="refreshBtn" onclick="load(true)">Refresh</button>
     <section id="cards" class="grid"></section>
     <div id="meta" class="meta"></div>
     <table>
@@ -59,8 +57,7 @@
       return item.brand;
     }
     function card(item){
-      const basis = item.id === 'lukfook-sg-formula-24k-999' && item.basis ? `<div class="unit">Formula: CTF ${money.format(item.basis.sourcePrice)} - SGD 3.00</div>` : '';
-      return `<article class="card ${item.status === 'ok' ? '' : 'error'}"><div class="brand"><strong>${displayName(item)}</strong><span class="badge">${publicLabel(item)}</span></div><div class="price">${item.status === 'ok' ? money.format(item.price) : '—'}</div><div class="unit">${item.status === 'ok' ? '/ gram' : 'Please check gold price setting'}</div>${basis}</article>`;
+      return `<article class="card ${item.status === 'ok' ? '' : 'error'}"><div class="brand"><strong>${displayName(item)}</strong><span class="badge">${publicLabel(item)}</span></div><div class="price">${item.status === 'ok' ? money.format(item.price) : '—'}</div><div class="unit">${item.status === 'ok' ? '/ gram' : 'Please check gold price setting'}</div></article>`;
     }
     function row(item){ const url = publicUrl(item); return `<tr><td>${displayName(item)}</td><td>${publicLabel(item)}</td><td>${price(item)}</td><td>${status(item)}</td><td>${url ? `<a href="${url}" target="_blank" rel="noopener">Open website</a>` : '—'}</td></tr>`; }
     async function load(manual=false){
@@ -72,9 +69,9 @@
         const items = data.items || [];
         document.getElementById('cards').innerHTML = items.length ? items.map(card).join('') : '<div class="card">No data available.</div>';
         document.getElementById('rows').innerHTML = items.map(row).join('');
-        document.getElementById('meta').innerHTML = `🕒 Last updated<br>${sgtTime(data.updatedAt)}<br><br>🤖 Data is updated by GitHub Actions. This button reloads the latest saved result.`;
+        document.getElementById('meta').innerHTML = `🕒 Last updated<br>${sgtTime(data.updatedAt)}`;
       } finally {
-        if(manual){ btn.disabled = false; btn.textContent = 'Refresh latest saved data'; }
+        if(manual){ btn.disabled = false; btn.textContent = 'Refresh'; }
       }
     }
     load().catch(() => { document.getElementById('cards').innerHTML = `<div class="card error"><div class="price">—</div><div class="unit">Unable to load data</div></div>`; });
