@@ -16245,5 +16245,69 @@
         "checkedAt": "2026-07-14T06:00:32.829Z"
       }
     ]
+  },
+  {
+    "updatedAt": "2026-07-14T06:30:32.706Z",
+    "timezone": "Asia/Singapore",
+    "items": [
+      {
+        "id": "poh-heng-24k-999",
+        "brand": "Poh Heng",
+        "label": "24K / 999",
+        "url": "https://pohheng.com.sg/",
+        "status": "ok",
+        "price": 252,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "24K / 999 at $252.00 / g",
+        "verification": {
+          "attempts": 3,
+          "matchedAttempts": 3,
+          "method": "multi-read consensus"
+        },
+        "checkedAt": "2026-07-14T06:30:32.706Z",
+        "stale": true,
+        "pendingConfirmation": true,
+        "pendingCandidatePrice": 250,
+        "pendingCandidateRawText": "24K / 999 at $250.00 / g",
+        "pendingCandidateCheckedAt": "2026-07-14T06:30:32.706Z",
+        "pendingReason": "Source requires two consecutive matching reads before alerting.",
+        "lastError": "Pending confirmation: parsed SGD 250.00 but previous confirmed price is SGD 252.00."
+      },
+      {
+        "id": "chow-tai-fook-sg-24k-999",
+        "brand": "Chow Tai Fook SG",
+        "label": "24K / 999",
+        "url": "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
+        "status": "ok",
+        "price": 255,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "Today's 999.9 Gold Selling Price S$ 255.0 /g",
+        "verification": {
+          "attempts": 3,
+          "matchedAttempts": 3,
+          "method": "multi-read consensus"
+        },
+        "checkedAt": "2026-07-14T06:30:32.706Z"
+      },
+      {
+        "id": "lukfook-sg-formula-24k-999",
+        "brand": "六福珠寶",
+        "label": "24K / 999",
+        "url": "#",
+        "status": "ok",
+        "price": 252,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "Chow Tai Fook SG 999.9 Gold Selling Price - SGD 3.00",
+        "basis": {
+          "source": "Chow Tai Fook SG",
+          "sourcePrice": 255,
+          "adjustment": -3
+        },
+        "checkedAt": "2026-07-14T06:30:32.706Z"
+      }
+    ]
   }
 ]
