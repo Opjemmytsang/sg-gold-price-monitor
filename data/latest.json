@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-15T04:00:29.587Z",
+  "updatedAt": "2026-07-15T04:30:34.728Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -14,17 +14,10 @@
       "rawText": "24K / 999 at $252.00 / g",
       "verification": {
         "attempts": 3,
-        "matchedAttempts": 2,
+        "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-07-15T04:00:29.587Z",
-      "stale": true,
-      "pendingConfirmation": true,
-      "pendingCandidatePrice": 250,
-      "pendingCandidateRawText": "24K / 999 at $250.00 / g",
-      "pendingCandidateCheckedAt": "2026-07-15T04:00:29.587Z",
-      "pendingReason": "Source requires two consecutive matching reads before alerting.",
-      "lastError": "Pending confirmation: parsed SGD 250.00 but previous confirmed price is SGD 252.00."
+      "checkedAt": "2026-07-15T04:30:34.728Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -41,7 +34,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-07-15T04:00:29.587Z"
+      "checkedAt": "2026-07-15T04:30:34.728Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -58,7 +51,7 @@
         "sourcePrice": 257,
         "adjustment": -3
       },
-      "checkedAt": "2026-07-15T04:00:29.587Z"
+      "checkedAt": "2026-07-15T04:30:34.728Z"
     }
   ]
 }
