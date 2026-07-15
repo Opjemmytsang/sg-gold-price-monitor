@@ -38,7 +38,7 @@
     </table>
   </main>
   <script>
-    window.SG_GOLD_REFRESH_ENDPOINT = "https://sg-gold-trigger.arwing28.workers.dev";
+    window.SG_GOLD_REFRESH_ENDPOINT = "https://sg-gold-trigger.arwing28.workers.dev/trigger";
   </script>
   <script>
     const REFRESH_ENDPOINT = window.SG_GOLD_REFRESH_ENDPOINT || '';
@@ -70,6 +70,7 @@
     }
     async function load(){
       const res = await fetch(`data/latest.json?ts=${Date.now()}`, { cache:'no-store' });
+      if(!res.ok) throw new Error(`Latest data load failed: ${res.status}`);
       const data = await res.json();
       const items = data.items || [];
       lastUpdatedAt = data.updatedAt || '';
@@ -90,7 +91,7 @@
         setMeta(data, '⏳ Updating...');
       }
       const data = await load();
-      setMeta(data, '⏳ Update triggered. Please press Refresh again later.');
+      setMeta(data, '⏳ Update triggered. Please check again later.');
     }
     async function refreshNow(){
       const btn = document.getElementById('refreshBtn');
@@ -98,16 +99,21 @@
       btn.disabled = true;
       btn.textContent = 'Refreshing...';
       try{
+        setMeta({ updatedAt: previousUpdatedAt }, '⏳ Starting update...');
         if(REFRESH_ENDPOINT){
-          const response = await fetch(REFRESH_ENDPOINT, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ source:'dashboard' }) });
-          if(!response.ok) throw new Error(`Refresh trigger failed: ${response.status}`);
-          document.getElementById('meta').innerHTML += '<br><br>⏳ Updating...';
+          await fetch(`${REFRESH_ENDPOINT}?ts=${Date.now()}`, {
+            method:'GET',
+            mode:'no-cors',
+            cache:'no-store'
+          });
+          setMeta({ updatedAt: previousUpdatedAt }, '⏳ Updating...');
           await waitForUpdatedData(previousUpdatedAt);
         } else {
           await load();
         }
       } catch(error) {
-        document.getElementById('meta').innerHTML += `<br><br>🟡 Refresh failed`;
+        const data = await load().catch(() => ({ updatedAt: previousUpdatedAt }));
+        setMeta(data, '🟡 Refresh failed');
       } finally {
         btn.disabled = false;
         btn.textContent = 'Refresh';
