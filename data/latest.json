@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-15T14:00:37.966Z",
+  "updatedAt": "2026-07-15T14:27:07.571Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -17,7 +17,9 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-07-15T14:00:37.966Z"
+      "checkedAt": "2026-07-15T14:27:07.571Z",
+      "stale": true,
+      "lastError": "No successful price read. attempt 1: Cannot find Poh Heng exact 24K / 999 price line. | attempt 2: Cannot find Poh Heng exact 24K / 999 price line. | attempt 3: Cannot find Poh Heng exact 24K / 999 price line."
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -34,7 +36,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-07-15T14:00:37.966Z"
+      "checkedAt": "2026-07-15T14:27:07.571Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -51,7 +53,7 @@
         "sourcePrice": 257,
         "adjustment": -3
       },
-      "checkedAt": "2026-07-15T14:00:37.966Z"
+      "checkedAt": "2026-07-15T14:27:07.571Z"
     }
   ]
 }
