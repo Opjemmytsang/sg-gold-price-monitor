@@ -1,6 +1,8 @@
 name: Check Singapore 24K Gold Prices
 
 on:
+  schedule:
+    - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
       send_quote:
