@@ -120,6 +120,10 @@
       }
     }
     load().catch(() => { document.getElementById('cards').innerHTML = `<div class="card error"><div class="price">—</div><div class="unit">Unable to load data</div></div>`; });
+    setInterval(() => {
+      const btn = document.getElementById('refreshBtn');
+      if(!btn.disabled) load().catch(() => {});
+    }, 60000);
   </script>
 </body>
 </html>
