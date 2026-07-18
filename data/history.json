@@ -1,47 +1,5 @@
 [
   {
-    "updatedAt": "2026-07-08T23:00:48.057Z",
-    "timezone": "Asia/Singapore",
-    "items": [
-      {
-        "id": "poh-heng-24k-999",
-        "brand": "Poh Heng",
-        "label": "24K / 999",
-        "url": "https://pohheng.com.sg/",
-        "status": "ok",
-        "price": 254,
-        "currency": "SGD",
-        "unit": "gram",
-        "rawText": "24K / 999 at $254.00 / g",
-        "checkedAt": "2026-07-08T23:00:48.057Z"
-      },
-      {
-        "id": "chow-tai-fook-sg-24k-999",
-        "brand": "Chow Tai Fook SG",
-        "label": "24K / 999",
-        "url": "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
-        "status": "ok",
-        "price": 259,
-        "currency": "SGD",
-        "unit": "gram",
-        "rawText": "PURE GOLD PRODUCTS 7.7 DEAL JEWELLERY WEDDING GIFTING HOUSE OF CTF Pure Gold Today's 999.9 Gold Selling Price S$ 259.0 /g",
-        "checkedAt": "2026-07-08T23:00:48.057Z"
-      },
-      {
-        "id": "lukfook-sg-formula-24k-999",
-        "brand": "六福珠寶",
-        "label": "24K / 999",
-        "url": "#",
-        "status": "ok",
-        "price": 256,
-        "currency": "SGD",
-        "unit": "gram",
-        "rawText": "24K / 999",
-        "checkedAt": "2026-07-08T23:00:48.057Z"
-      }
-    ]
-  },
-  {
     "updatedAt": "2026-07-08T23:30:57.279Z",
     "timezone": "Asia/Singapore",
     "items": [
@@ -28505,6 +28463,63 @@
           "adjustment": -3
         },
         "checkedAt": "2026-07-18T05:30:30.776Z"
+      }
+    ]
+  },
+  {
+    "updatedAt": "2026-07-18T06:00:34.427Z",
+    "timezone": "Asia/Singapore",
+    "items": [
+      {
+        "id": "poh-heng-24k-999",
+        "brand": "Poh Heng",
+        "label": "24K / 999",
+        "url": "https://pohheng.com.sg/",
+        "status": "ok",
+        "price": 249,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "24K / 999 at $249.00 / g",
+        "verification": {
+          "attempts": 3,
+          "matchedAttempts": 3,
+          "method": "multi-read consensus"
+        },
+        "checkedAt": "2026-07-18T06:00:34.427Z"
+      },
+      {
+        "id": "chow-tai-fook-sg-24k-999",
+        "brand": "Chow Tai Fook SG",
+        "label": "24K / 999",
+        "url": "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
+        "status": "ok",
+        "price": 254,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "Today's 999.9 Gold Selling Price S$ 254.0 /g",
+        "verification": {
+          "attempts": 3,
+          "matchedAttempts": 3,
+          "method": "multi-read consensus"
+        },
+        "checkedAt": "2026-07-18T06:00:34.427Z"
+      },
+      {
+        "id": "lukfook-sg-formula-24k-999",
+        "brand": "六福珠寶",
+        "label": "24K / 999",
+        "url": "#",
+        "status": "ok",
+        "price": 251,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "Chow Tai Fook SG 999.9 Gold Selling Price - SGD 3.00",
+        "basis": {
+          "source": "Chow Tai Fook SG",
+          "sourcePrice": 254,
+          "adjustment": -3
+        },
+        "checkedAt": "2026-07-18T06:00:34.427Z"
       }
     ]
   }
