@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-24T11:00:33.566Z",
+  "updatedAt": "2026-07-24T11:22:33.504Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -17,7 +17,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-07-24T11:00:33.566Z"
+      "checkedAt": "2026-07-24T11:22:33.504Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -34,9 +34,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-07-24T11:00:33.566Z",
-      "stale": true,
-      "lastError": "No successful price read. attempt 1: static parse: CTF site-wide gold selling price not found. Product prices are intentionally ignored. | rendered: page.goto: Timeout 30000ms exceeded.\nCall log:\n  - navigating to \"https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold?_=1784890837352\", waiting until \"domcontentloaded\"\n | attempt 2: static parse: CTF site-wide gold selling price not found. Product prices are intentionally ignored. | rendered: page.goto: Timeout 30000ms exceeded.\nCall log:\n  - navigating to \"https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold?_=1784890869054\", waiting until \"domcontentloaded\"\n | attempt 3: static parse: CTF site-wide gold selling price not found. Product prices are intentionally ignored. | rendered: page.goto: Timeout 30000ms exceeded.\nCall log:\n  - navigating to \"https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold?_=1784890900977\", waiting until \"domcontentloaded\"\n"
+      "checkedAt": "2026-07-24T11:22:33.504Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -53,7 +51,7 @@
         "sourcePrice": 251,
         "adjustment": -3
       },
-      "checkedAt": "2026-07-24T11:00:33.566Z"
+      "checkedAt": "2026-07-24T11:22:33.504Z"
     }
   ]
 }
