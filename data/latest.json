@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-29T04:01:06.236Z",
+  "updatedAt": "2026-07-29T04:27:49.353Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -8,23 +8,19 @@
       "label": "24K / 999",
       "url": "https://pohheng.com.sg/",
       "status": "ok",
-      "price": 244,
+      "price": 242,
       "currency": "SGD",
       "unit": "gram",
-      "rawText": "24K / 999 at $244.00 / g",
+      "rawText": "24K / 999 at $242.00 / g",
       "verification": {
         "attempts": 3,
         "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-07-29T04:01:06.236Z",
-      "stale": true,
-      "pendingConfirmation": true,
-      "pendingCandidatePrice": 242,
-      "pendingCandidateRawText": "24K / 999 at $242.00 / g",
-      "pendingCandidateCheckedAt": "2026-07-29T04:01:06.236Z",
-      "pendingReason": "Source requires two consecutive matching reads before alerting.",
-      "lastError": "Pending confirmation: parsed SGD 242.00 but previous confirmed price is SGD 244.00."
+      "checkedAt": "2026-07-29T04:27:49.353Z",
+      "previousPrice": 244,
+      "change": -2,
+      "confirmedFromPending": true
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -41,7 +37,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-07-29T04:01:06.236Z"
+      "checkedAt": "2026-07-29T04:27:49.353Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -58,7 +54,7 @@
         "sourcePrice": 247,
         "adjustment": -3
       },
-      "checkedAt": "2026-07-29T04:01:06.236Z"
+      "checkedAt": "2026-07-29T04:27:49.353Z"
     }
   ]
 }
