@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-03T07:01:11.628Z",
+  "updatedAt": "2026-08-03T07:31:43.087Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -17,7 +17,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-08-03T07:01:11.628Z"
+      "checkedAt": "2026-08-03T07:31:43.087Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -34,7 +34,9 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-08-03T07:01:11.628Z"
+      "checkedAt": "2026-08-03T07:31:43.087Z",
+      "stale": true,
+      "lastError": "No successful price read. attempt 1: CTF site-wide gold selling price not found. Product prices are intentionally ignored. | attempt 2: CTF site-wide gold selling price not found. Product prices are intentionally ignored. | attempt 3: CTF site-wide gold selling price not found. Product prices are intentionally ignored."
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -51,7 +53,7 @@
         "sourcePrice": 244,
         "adjustment": -3
       },
-      "checkedAt": "2026-08-03T07:01:11.628Z"
+      "checkedAt": "2026-08-03T07:31:43.087Z"
     }
   ]
 }
