@@ -3,11 +3,7 @@ import fs from "node:fs/promises";
 const DATA_PATH = "data/latest.json";
 const HISTORY_PATH = "data/history.json";
 const LUKFOOK_ID = "lukfook-sg-formula-24k-999";
-const CTF_ID = "chow-tai-fook-sg-24k-999";
-
-function round2(value) {
-  return Math.round(Number(value) * 100) / 100;
-}
+const POH_HENG_ID = "poh-heng-24k-999";
 
 function isValidPrice(item) {
   return item?.status === "ok" && Number.isFinite(Number(item.price));
@@ -27,11 +23,11 @@ async function writeJson(path, data) {
 
 function buildLukFookItem(latest) {
   const items = latest.items || [];
-  const ctf = items.find((item) => item.id === CTF_ID);
+  const pohHeng = items.find((item) => item.id === POH_HENG_ID);
   const checkedAt = latest.updatedAt || new Date().toISOString();
   const filteredItems = items.filter((item) => item.id !== LUKFOOK_ID);
 
-  if (!isValidPrice(ctf)) {
+  if (!isValidPrice(pohHeng)) {
     return {
       ...latest,
       items: [
@@ -42,28 +38,27 @@ function buildLukFookItem(latest) {
           label: "24K / 999",
           url: "#",
           status: "error",
-          error: "Chow Tai Fook SG 金價讀取失敗，未能計算六福建議金價。",
+          error: "Poh Heng 金價讀取失敗，未能更新六福金價。",
           checkedAt
         }
       ]
     };
   }
 
-  const lukFookPrice = round2(Number(ctf.price) - 3);
   const formulaItem = {
     id: LUKFOOK_ID,
     brand: "六福珠寶",
     label: "24K / 999",
     url: "#",
     status: "ok",
-    price: lukFookPrice,
+    price: Number(pohHeng.price),
     currency: "SGD",
     unit: "gram",
-    rawText: "Chow Tai Fook SG 999.9 Gold Selling Price - SGD 3.00",
+    rawText: "Same as Poh Heng 24K / 999 Gold Price",
     basis: {
-      source: "Chow Tai Fook SG",
-      sourcePrice: Number(ctf.price),
-      adjustment: -3
+      source: "Poh Heng",
+      sourcePrice: Number(pohHeng.price),
+      adjustment: 0
     },
     checkedAt
   };
