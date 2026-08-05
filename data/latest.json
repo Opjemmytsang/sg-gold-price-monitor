@@ -42,14 +42,14 @@
       "label": "24K / 999",
       "url": "#",
       "status": "ok",
-      "price": 241,
+      "price": 239,
       "currency": "SGD",
       "unit": "gram",
-      "rawText": "Chow Tai Fook SG 999.9 Gold Selling Price - SGD 3.00",
+      "rawText": "Same as Poh Heng 24K / 999 Gold Price",
       "basis": {
-        "source": "Chow Tai Fook SG",
-        "sourcePrice": 244,
-        "adjustment": -3
+        "source": "Poh Heng",
+        "sourcePrice": 239,
+        "adjustment": 0
       },
       "checkedAt": "2026-08-05T04:26:56.953Z"
     }
