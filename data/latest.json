@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-06T04:10:00.000Z",
+  "updatedAt": "2026-08-06T04:28:21.618Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -17,7 +17,14 @@
         "matchedAttempts": 1,
         "method": "official website verification"
       },
-      "checkedAt": "2026-08-06T04:10:00.000Z"
+      "checkedAt": "2026-08-06T04:28:21.618Z",
+      "stale": true,
+      "pendingConfirmation": true,
+      "pendingCandidatePrice": 239,
+      "pendingCandidateRawText": "24K / 999 at $239.00 / g",
+      "pendingCandidateCheckedAt": "2026-08-06T04:28:21.618Z",
+      "pendingReason": "Source requires two consecutive matching reads before alerting.",
+      "lastError": "Pending confirmation: parsed SGD 239.00 but previous confirmed price is SGD 246.00."
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -34,9 +41,15 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-08-06T01:02:28.455Z",
+      "checkedAt": "2026-08-06T04:28:21.618Z",
       "stale": true,
-      "note": "Last confirmed automation result; not manually overwritten."
+      "note": "Last confirmed automation result; not manually overwritten.",
+      "pendingConfirmation": true,
+      "pendingCandidatePrice": 251,
+      "pendingCandidateRawText": "Today's 999.9 Gold Selling Price S$ 251.0 /g",
+      "pendingCandidateCheckedAt": "2026-08-06T04:28:21.618Z",
+      "pendingReason": "Price change 7.00 exceeds safe threshold 5.00.",
+      "lastError": "Pending confirmation: parsed SGD 251.00 but previous confirmed price is SGD 244.00."
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -53,7 +66,7 @@
         "sourcePrice": 246,
         "adjustment": 0
       },
-      "checkedAt": "2026-08-06T04:10:00.000Z"
+      "checkedAt": "2026-08-06T04:28:21.618Z"
     }
   ]
 }
