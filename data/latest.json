@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-16T13:07:07.239Z",
+  "updatedAt": "2026-08-16T13:30:26.042Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -13,13 +13,11 @@
       "unit": "gram",
       "rawText": "24K / 999 at $256.00 / g",
       "verification": {
-        "attempts": 2,
-        "matchedAttempts": 2,
+        "attempts": 3,
+        "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-08-16T13:07:07.239Z",
-      "stale": true,
-      "lastError": "No successful price read. attempt 1: static: fetch failed | rendered: page.goto: net::ERR_NAME_NOT_RESOLVED at https://pohheng.com.sg/?_=1786885637009\nCall log:\n  - navigating to \"https://pohheng.com.sg/?_=1786885637009\", waiting until \"domcontentloaded\"\n | attempt 2: static: fetch failed | rendered: page.goto: net::ERR_NAME_NOT_RESOLVED at https://pohheng.com.sg/?_=1786885665235\nCall log:\n  - navigating to \"https://pohheng.com.sg/?_=1786885665235\", waiting until \"domcontentloaded\"\n | attempt 3: static: fetch failed | rendered: page.goto: net::ERR_NAME_NOT_RESOLVED at https://pohheng.com.sg/?_=1786885694216\nCall log:\n  - navigating to \"https://pohheng.com.sg/?_=1786885694216\", waiting until \"domcontentloaded\"\n"
+      "checkedAt": "2026-08-16T13:30:26.042Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -36,7 +34,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus"
       },
-      "checkedAt": "2026-08-16T13:07:07.239Z"
+      "checkedAt": "2026-08-16T13:30:26.042Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -53,7 +51,7 @@
         "sourcePrice": 256,
         "adjustment": 0
       },
-      "checkedAt": "2026-08-16T13:07:07.239Z"
+      "checkedAt": "2026-08-16T13:30:26.042Z"
     }
   ]
 }
