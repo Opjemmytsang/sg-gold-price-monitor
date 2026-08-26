@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-26T07:30:53.802Z",
+  "updatedAt": "2026-08-26T08:01:02.030Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -17,7 +17,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-08-26T07:30:53.802Z"
+      "checkedAt": "2026-08-26T08:01:02.030Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -34,7 +34,9 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-08-26T07:30:53.802Z"
+      "checkedAt": "2026-08-26T08:01:02.030Z",
+      "stale": true,
+      "lastError": "No successful price read. attempt 1: rendered: page.goto: Timeout 35000ms exceeded.\nCall log:\n  - navigating to \"https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold?_=1787731277646-rg3zks3p1da\", waiting until \"domcontentloaded\"\n | static: CTF site-wide 999.9 Gold Selling Price not found. Product prices are ignored. | attempt 2: rendered: page.goto: Timeout 35000ms exceeded.\nCall log:\n  - navigating to \"https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold?_=1787731314660-v6royasibra\", waiting until \"domcontentloaded\"\n | static: CTF site-wide 999.9 Gold Selling Price not found. Product prices are ignored. | attempt 3: rendered: page.goto: Timeout 35000ms exceeded.\nCall log:\n  - navigating to \"https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold?_=1787731351689-net7o1nt5\", waiting until \"domcontentloaded\"\n | static: CTF site-wide 999.9 Gold Selling Price not found. Product prices are ignored."
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -51,7 +53,7 @@
         "sourcePrice": 268,
         "adjustment": 0
       },
-      "checkedAt": "2026-08-26T07:30:53.802Z"
+      "checkedAt": "2026-08-26T08:01:02.030Z"
     }
   ]
 }
