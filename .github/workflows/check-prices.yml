@@ -20,6 +20,7 @@ concurrency:
 jobs:
   check-prices:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -29,19 +30,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "20"
 
       - name: Install dependencies
         run: |
           npm install --no-audit --no-fund
-          npx playwright install chromium
+          npx playwright install --with-deps chromium
 
       - name: Check prices
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          npm run check || echo "Price check returned a non-zero status. Continuing so latest data/status can still be committed."
+          npm run check || echo "Price check returned a non-zero status. Continuing so previous confirmed prices remain available."
 
       - name: Check Luk Fook formula
         env:
@@ -56,22 +57,48 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SEND_QUOTE_ALWAYS: ${{ github.event_name == 'workflow_dispatch' && inputs.send_quote == 'true' }}
         run: |
-          node scripts/send-scheduled-quote.js || echo "Scheduled quote returned a non-zero status. Continuing."
+          node scripts/send-scheduled-quote.js || echo "Telegram quote step failed. Price data will still be committed."
 
       - name: Commit updated data
+        shell: bash
         run: |
-          if [[ -n $(git status --porcelain data/latest.json data/history.json) ]]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            cp data/latest.json /tmp/latest.json
-            cp data/history.json /tmp/history.json
+          set -u
+
+          if [[ -z $(git status --porcelain data/latest.json data/history.json) ]]; then
+            echo "No data changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          cp data/latest.json /tmp/latest.json
+          cp data/history.json /tmp/history.json
+
+          for attempt in 1 2 3; do
+            echo "Commit/push attempt ${attempt}/3"
             git fetch origin main
             git reset --hard origin/main
+
             cp /tmp/latest.json data/latest.json
             cp /tmp/history.json data/history.json
             git add data/latest.json data/history.json
-            git commit -m "Update Singapore 24K gold price data" || echo "No commit needed after sync."
-            git push
-          else
-            echo "No data changes to commit."
-          fi
+
+            if git diff --cached --quiet; then
+              echo "No data changes remain after syncing with main."
+              exit 0
+            fi
+
+            git commit -m "Update Singapore 24K gold price data"
+
+            if git push origin HEAD:main; then
+              echo "Gold price data pushed successfully."
+              exit 0
+            fi
+
+            echo "Push conflict or temporary GitHub error; retrying..."
+            sleep $((attempt * 3))
+          done
+
+          echo "Unable to push updated data after 3 attempts."
+          exit 1
