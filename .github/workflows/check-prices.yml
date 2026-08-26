@@ -37,6 +37,12 @@ jobs:
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
 
+      - name: Validate monitor scripts
+        run: |
+          node --check scripts/check-prices.js
+          node --check scripts/formula-check.js
+          node --check scripts/send-scheduled-quote.js
+
       - name: Check prices
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
