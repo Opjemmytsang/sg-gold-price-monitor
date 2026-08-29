@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-29T03:30:45.078Z",
+  "updatedAt": "2026-08-29T04:00:53.050Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -17,7 +17,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-08-29T03:30:45.078Z"
+      "checkedAt": "2026-08-29T04:00:53.050Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -25,18 +25,18 @@
       "label": "24K / 999",
       "url": "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
       "status": "ok",
-      "price": 271,
+      "price": 266,
       "currency": "SGD",
       "unit": "gram",
-      "rawText": "Today's 999.9 Gold Selling Price S$ 271.0 /g",
+      "rawText": "Today's 999.9 Gold Selling Price S$ 266.0 /g",
       "verification": {
         "attempts": 3,
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-08-29T03:30:45.078Z",
-      "stale": true,
-      "lastError": "No successful price read. attempt 1: rendered: CTF site-wide 999.9 Gold Selling Price not found. Product prices are ignored. | static: Static fetch failed: HTTP 403 | attempt 2: rendered: CTF site-wide 999.9 Gold Selling Price not found. Product prices are ignored. | static: Static fetch failed: HTTP 403 | attempt 3: rendered: CTF site-wide 999.9 Gold Selling Price not found. Product prices are ignored. | static: Static fetch failed: HTTP 403"
+      "checkedAt": "2026-08-29T04:00:53.050Z",
+      "previousPrice": 271,
+      "change": -5
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -53,7 +53,7 @@
         "sourcePrice": 261,
         "adjustment": 0
       },
-      "checkedAt": "2026-08-29T03:30:45.078Z"
+      "checkedAt": "2026-08-29T04:00:53.050Z"
     }
   ]
 }
