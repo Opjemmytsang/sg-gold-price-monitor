@@ -1,62 +1,5 @@
 [
   {
-    "updatedAt": "2026-08-22T13:58:05.453Z",
-    "timezone": "Asia/Singapore",
-    "items": [
-      {
-        "id": "poh-heng-24k-999",
-        "brand": "Poh Heng",
-        "label": "24K / 999",
-        "url": "https://pohheng.com.sg/",
-        "status": "ok",
-        "price": 262,
-        "currency": "SGD",
-        "unit": "gram",
-        "rawText": "24K / 999 at $262.00 / g",
-        "verification": {
-          "attempts": 3,
-          "matchedAttempts": 3,
-          "method": "multi-read consensus"
-        },
-        "checkedAt": "2026-08-22T13:58:05.453Z"
-      },
-      {
-        "id": "chow-tai-fook-sg-24k-999",
-        "brand": "Chow Tai Fook SG",
-        "label": "24K / 999",
-        "url": "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
-        "status": "ok",
-        "price": 267,
-        "currency": "SGD",
-        "unit": "gram",
-        "rawText": "Today's 999.9 Gold Selling Price S$ 267.0 /g",
-        "verification": {
-          "attempts": 3,
-          "matchedAttempts": 3,
-          "method": "multi-read consensus"
-        },
-        "checkedAt": "2026-08-22T13:58:05.453Z"
-      },
-      {
-        "id": "lukfook-sg-formula-24k-999",
-        "brand": "六福珠寶",
-        "label": "24K / 999",
-        "url": "#",
-        "status": "ok",
-        "price": 262,
-        "currency": "SGD",
-        "unit": "gram",
-        "rawText": "Same as Poh Heng 24K / 999 Gold Price",
-        "basis": {
-          "source": "Poh Heng",
-          "sourcePrice": 262,
-          "adjustment": 0
-        },
-        "checkedAt": "2026-08-22T13:58:05.453Z"
-      }
-    ]
-  },
-  {
     "updatedAt": "2026-08-22T14:00:33.625Z",
     "timezone": "Asia/Singapore",
     "items": [
@@ -28553,6 +28496,63 @@
           "adjustment": 0
         },
         "checkedAt": "2026-08-29T06:30:46.416Z"
+      }
+    ]
+  },
+  {
+    "updatedAt": "2026-08-29T07:00:44.943Z",
+    "timezone": "Asia/Singapore",
+    "items": [
+      {
+        "id": "poh-heng-24k-999",
+        "brand": "Poh Heng",
+        "label": "24K / 999",
+        "url": "https://pohheng.com.sg/",
+        "status": "ok",
+        "price": 261,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "24K / 999 at $261.00 / g",
+        "verification": {
+          "attempts": 3,
+          "matchedAttempts": 3,
+          "method": "multi-read consensus (rendered)"
+        },
+        "checkedAt": "2026-08-29T07:00:44.943Z"
+      },
+      {
+        "id": "chow-tai-fook-sg-24k-999",
+        "brand": "Chow Tai Fook SG",
+        "label": "24K / 999",
+        "url": "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
+        "status": "ok",
+        "price": 266,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "Today's 999.9 Gold Selling Price S$ 266.0 /g",
+        "verification": {
+          "attempts": 3,
+          "matchedAttempts": 3,
+          "method": "multi-read consensus (rendered)"
+        },
+        "checkedAt": "2026-08-29T07:00:44.943Z"
+      },
+      {
+        "id": "lukfook-sg-formula-24k-999",
+        "brand": "六福珠寶",
+        "label": "24K / 999",
+        "url": "#",
+        "status": "ok",
+        "price": 261,
+        "currency": "SGD",
+        "unit": "gram",
+        "rawText": "Same as Poh Heng 24K / 999 Gold Price",
+        "basis": {
+          "source": "Poh Heng",
+          "sourcePrice": 261,
+          "adjustment": 0
+        },
+        "checkedAt": "2026-08-29T07:00:44.943Z"
       }
     ]
   }
