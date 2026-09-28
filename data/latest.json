@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-28T04:01:04.094Z",
+  "updatedAt": "2026-09-28T04:31:20.034Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -17,7 +17,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-09-28T04:01:04.094Z"
+      "checkedAt": "2026-09-28T04:31:20.034Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -25,16 +25,18 @@
       "label": "24K / 999",
       "url": "https://www.chowtaifook.com/sg/eshop/jewellery/pure-gold",
       "status": "ok",
-      "price": 256,
+      "price": 253,
       "currency": "SGD",
       "unit": "gram",
-      "rawText": "Today's 999.9 Gold Selling Price S$ 256.0 /g",
+      "rawText": "Today's 999.9 Gold Selling Price S$ 253.0 /g",
       "verification": {
         "attempts": 3,
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-09-28T04:01:04.094Z"
+      "checkedAt": "2026-09-28T04:31:20.034Z",
+      "previousPrice": 256,
+      "change": -3
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -51,7 +53,7 @@
         "sourcePrice": 248,
         "adjustment": 0
       },
-      "checkedAt": "2026-09-28T04:01:04.094Z"
+      "checkedAt": "2026-09-28T04:31:20.034Z"
     }
   ]
 }
