@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-29T02:01:08.603Z",
+  "updatedAt": "2026-09-29T02:31:13.537Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -8,22 +8,19 @@
       "label": "24K / 999",
       "url": "https://pohheng.com.sg/",
       "status": "ok",
-      "price": 248,
+      "price": 242,
       "currency": "SGD",
       "unit": "gram",
-      "rawText": "24K / 999 at $248.00 / g",
+      "rawText": "24K / 999 at $242.00 / g",
       "verification": {
         "attempts": 3,
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-09-29T02:01:08.603Z",
-      "stale": true,
-      "pendingConfirmation": true,
-      "pendingCandidatePrice": 242,
-      "pendingCandidateRawText": "24K / 999 at $242.00 / g",
-      "pendingCandidateCheckedAt": "2026-09-29T02:01:08.603Z",
-      "lastError": "Large move pending confirmation: SGD 248.00 → SGD 242.00."
+      "checkedAt": "2026-09-29T02:31:13.537Z",
+      "previousPrice": 248,
+      "change": -6,
+      "confirmedFromPending": true
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -40,7 +37,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-09-29T02:01:08.603Z"
+      "checkedAt": "2026-09-29T02:31:13.537Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -48,16 +45,16 @@
       "label": "24K / 999",
       "url": "#",
       "status": "ok",
-      "price": 248,
+      "price": 242,
       "currency": "SGD",
       "unit": "gram",
       "rawText": "Same as Poh Heng 24K / 999 Gold Price",
       "basis": {
         "source": "Poh Heng",
-        "sourcePrice": 248,
+        "sourcePrice": 242,
         "adjustment": 0
       },
-      "checkedAt": "2026-09-29T02:01:08.603Z"
+      "checkedAt": "2026-09-29T02:31:13.537Z"
     }
   ]
 }
