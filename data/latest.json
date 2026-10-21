@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-21T03:01:01.256Z",
+  "updatedAt": "2026-10-21T03:31:25.429Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -17,7 +17,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-10-21T03:01:01.256Z"
+      "checkedAt": "2026-10-21T03:31:25.429Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -34,7 +34,13 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-10-21T03:01:01.256Z"
+      "checkedAt": "2026-10-21T03:31:25.429Z",
+      "stale": true,
+      "pendingConfirmation": true,
+      "pendingCandidatePrice": 243,
+      "pendingCandidateRawText": "Today's 999.9 Gold Selling Price S$ 243.0 /g",
+      "pendingCandidateCheckedAt": "2026-10-21T03:31:25.429Z",
+      "lastError": "Large move pending confirmation: SGD 249.00 → SGD 243.00."
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -51,7 +57,7 @@
         "sourcePrice": 238,
         "adjustment": 0
       },
-      "checkedAt": "2026-10-21T03:01:01.256Z"
+      "checkedAt": "2026-10-21T03:31:25.429Z"
     }
   ]
 }
