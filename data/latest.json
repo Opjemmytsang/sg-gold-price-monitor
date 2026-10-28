@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-28T18:01:23.857Z",
+  "updatedAt": "2026-10-28T18:31:23.175Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -17,7 +17,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-10-28T18:01:23.857Z"
+      "checkedAt": "2026-10-28T18:31:23.175Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -34,7 +34,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-10-28T18:01:23.857Z"
+      "checkedAt": "2026-10-28T18:31:23.175Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -51,7 +51,7 @@
         "sourcePrice": 237,
         "adjustment": 0
       },
-      "checkedAt": "2026-10-28T18:01:23.857Z"
+      "checkedAt": "2026-10-28T18:31:23.175Z"
     }
   ]
 }
