@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-30T18:01:23.245Z",
+  "updatedAt": "2026-10-30T18:31:14.216Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -17,7 +17,9 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-10-30T18:01:23.245Z"
+      "checkedAt": "2026-10-30T18:31:14.216Z",
+      "stale": true,
+      "lastError": "No successful price read. attempt 1: rendered: page.goto: net::ERR_NAME_NOT_RESOLVED at https://pohheng.com.sg/?_=1793385074568-260qf4lytjy\nCall log:\n  - navigating to \"https://pohheng.com.sg/?_=1793385074568-260qf4lytjy\", waiting until \"domcontentloaded\"\n | attempt 2: rendered: page.goto: net::ERR_NAME_NOT_RESOLVED at https://pohheng.com.sg/?_=1793385091610-s2pld5w6jl\nCall log:\n  - navigating to \"https://pohheng.com.sg/?_=1793385091610-s2pld5w6jl\", waiting until \"domcontentloaded\"\n | attempt 3: rendered: page.goto: net::ERR_NAME_NOT_RESOLVED at https://pohheng.com.sg/?_=1793385110560-xuhdqgnblh\nCall log:\n  - navigating to \"https://pohheng.com.sg/?_=1793385110560-xuhdqgnblh\", waiting until \"domcontentloaded\"\n"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -34,7 +36,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-10-30T18:01:23.245Z"
+      "checkedAt": "2026-10-30T18:31:14.216Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -51,7 +53,7 @@
         "sourcePrice": 237,
         "adjustment": 0
       },
-      "checkedAt": "2026-10-30T18:01:23.245Z"
+      "checkedAt": "2026-10-30T18:31:14.216Z"
     }
   ]
 }
