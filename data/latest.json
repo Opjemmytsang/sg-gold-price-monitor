@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-05T02:30:57.292Z",
+  "updatedAt": "2026-11-05T02:32:21.025Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -17,12 +17,12 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-11-05T02:30:57.292Z",
+      "checkedAt": "2026-11-05T02:32:21.025Z",
       "stale": true,
       "pendingConfirmation": true,
       "pendingCandidatePrice": 239,
       "pendingCandidateRawText": "24K / 999 at $239.00 / g",
-      "pendingCandidateCheckedAt": "2026-11-05T02:30:57.292Z",
+      "pendingCandidateCheckedAt": "2026-11-05T02:32:21.025Z",
       "lastError": "Large move pending confirmation: SGD 232.00 → SGD 239.00."
     },
     {
@@ -40,7 +40,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-11-05T02:30:57.292Z"
+      "checkedAt": "2026-11-05T02:32:21.025Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -57,7 +57,7 @@
         "sourcePrice": 232,
         "adjustment": 0
       },
-      "checkedAt": "2026-11-05T02:30:57.292Z"
+      "checkedAt": "2026-11-05T02:32:21.025Z"
     }
   ]
 }
