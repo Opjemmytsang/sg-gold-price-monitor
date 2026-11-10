@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-10T08:31:27.253Z",
+  "updatedAt": "2026-11-10T09:00:42.524Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -17,7 +17,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-11-10T08:31:27.253Z"
+      "checkedAt": "2026-11-10T09:00:42.524Z"
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -30,11 +30,11 @@
       "unit": "gram",
       "rawText": "Today's 999.9 Gold Selling Price S$ 246.0 /g",
       "verification": {
-        "attempts": 2,
-        "matchedAttempts": 2,
+        "attempts": 3,
+        "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-11-10T08:31:27.253Z"
+      "checkedAt": "2026-11-10T09:00:42.524Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -51,7 +51,7 @@
         "sourcePrice": 241,
         "adjustment": 0
       },
-      "checkedAt": "2026-11-10T08:31:27.253Z"
+      "checkedAt": "2026-11-10T09:00:42.524Z"
     }
   ]
 }
