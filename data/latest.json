@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-12T12:31:11.002Z",
+  "updatedAt": "2026-11-12T13:01:11.976Z",
   "timezone": "Asia/Singapore",
   "items": [
     {
@@ -17,7 +17,9 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-11-12T12:31:11.002Z"
+      "checkedAt": "2026-11-12T13:01:11.976Z",
+      "stale": true,
+      "lastError": "Unstable price readings; no consensus reached. Readings: SGD 234.00."
     },
     {
       "id": "chow-tai-fook-sg-24k-999",
@@ -34,7 +36,7 @@
         "matchedAttempts": 3,
         "method": "multi-read consensus (rendered)"
       },
-      "checkedAt": "2026-11-12T12:31:11.002Z"
+      "checkedAt": "2026-11-12T13:01:11.976Z"
     },
     {
       "id": "lukfook-sg-formula-24k-999",
@@ -51,7 +53,7 @@
         "sourcePrice": 234,
         "adjustment": 0
       },
-      "checkedAt": "2026-11-12T12:31:11.002Z"
+      "checkedAt": "2026-11-12T13:01:11.976Z"
     }
   ]
 }
